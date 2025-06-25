@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programas Mentales</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="icon.png">
+  <script src="https://kit.fontawesome.com/4b8b59b5b2.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <header>
+    <h1>Programas Mentales</h1>
+  </header>
+  <main id="main-content">
+    <section class="programs-grid">
+      <div class="program-card espiritual" data-programa="espiritual">
+        <i class="fas fa-star"></i>
+        <span>Espiritual</span>
+      </div>
+      <div class="program-card cuerpo" data-programa="cuerpo">
+        <i class="fas fa-heartbeat"></i>
+        <span>Cuerpo</span>
+      </div>
+      <div class="program-card familia" data-programa="familia">
+        <i class="fas fa-users"></i>
+        <span>Familia</span>
+      </div>
+      <div class="program-card trabajo" data-programa="trabajo">
+        <i class="fas fa-briefcase"></i>
+        <span>Trabajo</span>
+      </div>
+      <div class="program-card estudio" data-programa="estudio">
+        <i class="fas fa-book"></i>
+        <span>Estudio</span>
+      </div>
+      <div class="program-card recreacion" data-programa="recreacion">
+        <i class="fas fa-futbol"></i>
+        <span>Recreación</span>
+      </div>
+      <div class="program-card casa" data-programa="casa">
+        <i class="fas fa-home"></i>
+        <span>Casa</span>
+      </div>
+      <div class="program-card social" data-programa="social">
+        <i class="fas fa-comments"></i>
+        <span>Social</span>
+      </div>
+    </section>
+    <section id="program-detail" class="hidden">
+      <button id="back-btn">&larr; Volver</button>
+      <h2 id="program-title"></h2>
+      <textarea id="program-notes" placeholder="Escribe tus notas aquí..."></textarea>
+    </section>
+  </main>
+  <script src="main.js"></script>
+</body>
+</html> 

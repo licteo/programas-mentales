@@ -1,0 +1,120 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f4f4f9;
+  color: #222;
+}
+header {
+  background: #6c63ff;
+  color: #fff;
+  padding: 1.5rem 0;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.program-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  background: #fff;
+}
+.program-card i {
+  font-size: 2.5rem;
+  margin-bottom: 0.7rem;
+}
+.program-card.espiritual { background: #a084e8; color: #fff; }
+.program-card.espiritual i { color: #fffbe7; }
+.program-card.cuerpo { background: #4caf50; color: #fff; }
+.program-card.cuerpo i { color: #eaffea; }
+.program-card.familia { background: #ff9800; color: #fff; }
+.program-card.familia i { color: #fff3e0; }
+.program-card.trabajo { background: #2196f3; color: #fff; }
+.program-card.trabajo i { color: #e3f2fd; }
+.program-card.estudio { background: #ffd600; color: #222; }
+.program-card.estudio i { color: #fffde7; }
+.program-card.recreacion { background: #e53935; color: #fff; }
+.program-card.recreacion i { color: #ffebee; }
+.program-card.casa { background: #8d6e63; color: #fff; }
+.program-card.casa i { color: #efebe9; }
+.program-card.social { background: #00bcd4; color: #fff; }
+.program-card.social i { color: #e0f7fa; }
+.program-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+}
+#program-detail {
+  max-width: 500px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+#program-detail.hidden {
+  display: none;
+}
+#back-btn {
+  align-self: flex-start;
+  background: #6c63ff;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+#program-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+#program-notes {
+  width: 100%;
+  min-height: 120px;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  padding: 0.8rem;
+  font-size: 1rem;
+  resize: vertical;
+}
+@media (max-width: 600px) {
+  .programs-grid {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  #program-detail {
+    padding: 1rem;
+  }
+}
+.actividad-bloque {
+  background: #f7f6fd;
+  border-left: 5px solid #6c63ff;
+  border-radius: 0.7rem;
+  margin-bottom: 1.2rem;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 2px 8px rgba(108,99,255,0.06);
+}
+.actividad-bloque strong {
+  color: #6c63ff;
+}
+.actividad-bloque ul {
+  margin: 0.5rem 0 0 1.2rem;
+  padding: 0;
+} 
