@@ -13,6 +13,9 @@ header {
   border-bottom-left-radius: 1.5rem;
   border-bottom-right-radius: 1.5rem;
 }
+header > div {
+  flex-wrap: wrap;
+}
 .programs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -135,6 +138,25 @@ header {
   }
   #program-detail {
     padding: 1rem;
+  }
+  header > div {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  header > div > * {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  #backup-restore-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  #backup-restore-bar > * {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 }
 .actividad-bloque {
