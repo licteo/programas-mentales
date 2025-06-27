@@ -823,7 +823,11 @@ const notesTagsList = document.getElementById('notes-tags-list');
 const tagFilter = document.getElementById('tag-filter');
 
 function getTagsFromString(str) {
-  return str.split(',').map(t => t.trim()).filter(t => t);
+  if (Array.isArray(str)) return str;
+  if (typeof str === 'string') {
+    return str.split(',').map(t => t.trim()).filter(t => t);
+  }
+  return [];
 }
 function renderTagsList(tags, container) {
   container.innerHTML = '';
