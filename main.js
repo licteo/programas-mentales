@@ -325,6 +325,7 @@ function renderActividades(program) {
     };
   });
   updateTagFilter();
+  evitarPropagacionBotones();
 }
 
 function mostrarFormularioActividad(program, idx = null) {
@@ -1147,5 +1148,14 @@ if (shareBtn) {
 if (darkModeBtn) {
   darkModeBtn.addEventListener('click', () => {
     if (document.body.classList.contains('dark-mode')) unlockAchievement('modo_oscuro');
+  });
+}
+
+// Evitar que los botones internos de la tarjeta interfieran con el click de la tarjeta
+function evitarPropagacionBotones() {
+  document.querySelectorAll('.btn-editar, .btn-eliminar, .btn-recordatorio, .btn-historial').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
   });
 } 
