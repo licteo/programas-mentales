@@ -8,52 +8,115 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="icon.png">
   <script src="https://kit.fontawesome.com/4b8b59b5b2.js" crossorigin="anonymous"></script>
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 </head>
 <body>
   <header>
     <h1>Programas Mentales</h1>
+    <div style="margin-top: 1rem; display: flex; gap: 0.5rem; align-items: center;">
+      <input id="global-search" type="text" placeholder="Buscar en todos los programas..." style="flex:1; max-width: 260px; padding: 0.4rem; border-radius: 0.4rem; border: 1px solid #ccc;" />
+      <select id="tag-filter" style="max-width: 140px; padding: 0.4rem; border-radius: 0.4rem; border: 1px solid #ccc;"><option value="">Filtrar por etiqueta</option></select>
+      <span id="points-display" style="font-weight:bold; color:#ff9800; margin-right:0.5rem;">🏆 0</span>
+      <button id="achievements-btn" title="Ver logros" style="font-size:1.3em;">🥇</button>
+      <button id="stats-btn">Estadísticas</button>
+      <button id="darkmode-btn">Modo oscuro</button>
+      <button id="export-all-pdf">Exportar todo a PDF</button>
+    </div>
   </header>
   <main id="main-content">
     <section class="programs-grid">
       <div class="program-card espiritual" data-programa="espiritual">
         <i class="fas fa-star"></i>
-        <span>Espiritual</span>
+        <span>Programa Espiritual</span>
       </div>
       <div class="program-card cuerpo" data-programa="cuerpo">
         <i class="fas fa-heartbeat"></i>
-        <span>Cuerpo</span>
+        <span>Programa Cuerpo</span>
       </div>
       <div class="program-card familia" data-programa="familia">
         <i class="fas fa-users"></i>
-        <span>Familia</span>
+        <span>Programa Familia</span>
       </div>
       <div class="program-card trabajo" data-programa="trabajo">
         <i class="fas fa-briefcase"></i>
-        <span>Trabajo</span>
+        <span>Programa Trabajo</span>
       </div>
       <div class="program-card estudio" data-programa="estudio">
         <i class="fas fa-book"></i>
-        <span>Estudio</span>
+        <span>Programa Estudio</span>
       </div>
       <div class="program-card recreacion" data-programa="recreacion">
         <i class="fas fa-futbol"></i>
-        <span>Recreación</span>
+        <span>Programa Recreación</span>
       </div>
       <div class="program-card casa" data-programa="casa">
         <i class="fas fa-home"></i>
-        <span>Casa</span>
+        <span>Programa Casa</span>
       </div>
       <div class="program-card social" data-programa="social">
         <i class="fas fa-comments"></i>
-        <span>Social</span>
+        <span>Programa Social</span>
       </div>
     </section>
     <section id="program-detail" class="hidden">
       <button id="back-btn">&larr; Volver</button>
+      <div id="backup-restore-bar" style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+        <button id="backup-btn">Respaldar datos</button>
+        <button id="restore-btn">Restaurar datos</button>
+        <input type="file" id="restore-file" accept="application/json" style="display:none;" />
+        <button id="export-program-pdf">Exportar este programa a PDF</button>
+        <button id="share-program-btn">Compartir</button>
+      </div>
       <h2 id="program-title"></h2>
-      <textarea id="program-notes" placeholder="Escribe tus notas aquí..."></textarea>
+      <div id="notes-toolbar"></div>
+      <div id="program-notes" style="height: 180px;"></div>
+      <input id="notes-tags" type="text" placeholder="Etiquetas (separadas por coma)" style="margin-top:0.5rem; width:100%; border-radius:0.4rem; border:1px solid #ccc; padding:0.4rem;" />
+      <div id="notes-tags-list" style="margin-bottom:1rem;"></div>
+      <button id="notes-history-btn" style="margin-bottom:1rem;">Historial de notas</button>
     </section>
   </main>
+  <div id="stats-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" id="close-stats">&times;</span>
+      <h2>Estadísticas</h2>
+      <canvas id="chart-actividades" height="180"></canvas>
+      <canvas id="chart-recordatorios" height="180"></canvas>
+      <canvas id="chart-notas" height="180"></canvas>
+    </div>
+  </div>
+  <div id="search-results-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" id="close-search-results">&times;</span>
+      <h2>Resultados de búsqueda</h2>
+      <div id="search-results-list"></div>
+    </div>
+  </div>
+  <div id="history-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" id="close-history">&times;</span>
+      <h2>Historial</h2>
+      <div id="history-list"></div>
+    </div>
+  </div>
+  <div id="share-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" id="close-share">&times;</span>
+      <h2>Compartir programa</h2>
+      <button id="share-copy">Copiar al portapapeles</button>
+      <button id="share-whatsapp">Compartir por WhatsApp</button>
+      <button id="share-email">Compartir por correo</button>
+    </div>
+  </div>
+  <div id="achievements-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" id="close-achievements">&times;</span>
+      <h2>Logros y puntos</h2>
+      <div id="achievements-list"></div>
+    </div>
+  </div>
   <script src="main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </body>
 </html> 

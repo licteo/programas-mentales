@@ -1,22 +1,24 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f4f4f9;
-  color: #222;
+  background: linear-gradient(135deg, #f4f4f9 0%, #e0e7ff 100%);
+  color: #23234a;
 }
 header {
-  background: #6c63ff;
+  background: linear-gradient(90deg, #6c63ff 60%, #a084e8 100%);
   color: #fff;
-  padding: 1.5rem 0;
+  padding: 1.5rem 0 1rem 0;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 16px rgba(108,99,255,0.10);
+  border-bottom-left-radius: 1.5rem;
+  border-bottom-right-radius: 1.5rem;
 }
 .programs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
-  max-width: 900px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  padding: 2.5rem 2rem;
+  max-width: 1100px;
   margin: 0 auto;
 }
 .program-card {
@@ -24,17 +26,19 @@ header {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
-  border-radius: 1.2rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-  font-size: 1.2rem;
+  padding: 2.2rem 1.2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(108,99,255,0.10);
+  font-size: 1.22rem;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  background: #fff;
+  transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+  background: linear-gradient(135deg, #fff 60%, #f4f4f9 100%);
+  border: 1.5px solid #ececff;
 }
 .program-card i {
-  font-size: 2.5rem;
-  margin-bottom: 0.7rem;
+  font-size: 2.7rem;
+  margin-bottom: 0.8rem;
+  filter: drop-shadow(0 2px 6px rgba(108,99,255,0.10));
 }
 .program-card.espiritual { background: #a084e8; color: #fff; }
 .program-card.espiritual i { color: #fffbe7; }
@@ -53,46 +57,76 @@ header {
 .program-card.social { background: #00bcd4; color: #fff; }
 .program-card.social i { color: #e0f7fa; }
 .program-card:hover {
-  transform: translateY(-6px) scale(1.03);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+  transform: translateY(-8px) scale(1.04);
+  box-shadow: 0 16px 40px rgba(108,99,255,0.18);
+  background: linear-gradient(135deg, #e0e7ff 60%, #fff 100%);
 }
 #program-detail {
-  max-width: 500px;
-  margin: 2rem auto;
+  max-width: 540px;
+  margin: 2.5rem auto;
   background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.09);
-  padding: 2rem;
+  border-radius: 1.3rem;
+  box-shadow: 0 8px 32px rgba(108,99,255,0.13);
+  padding: 2.2rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.3rem;
 }
 #program-detail.hidden {
   display: none;
 }
 #back-btn {
   align-self: flex-start;
-  background: #6c63ff;
+  background: linear-gradient(90deg, #6c63ff 60%, #a084e8 100%);
   color: #fff;
   border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1.2rem;
-  font-size: 1rem;
+  border-radius: 0.7rem;
+  padding: 0.55rem 1.3rem;
+  font-size: 1.05rem;
   cursor: pointer;
   margin-bottom: 1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(108,99,255,0.08);
+  transition: background 0.18s, box-shadow 0.18s;
+}
+#back-btn:hover {
+  background: linear-gradient(90deg, #a084e8 60%, #6c63ff 100%);
+  box-shadow: 0 4px 16px rgba(108,99,255,0.13);
 }
 #program-title {
   margin: 0 0 0.5rem 0;
   font-size: 1.5rem;
 }
+#notes-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+#notes-toolbar button {
+  background: #f4f4f9;
+  border: 1px solid #ccc;
+  border-radius: 0.3rem;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+#notes-toolbar button:hover {
+  background: #e0e0ff;
+}
 #program-notes {
-  width: 100%;
-  min-height: 120px;
+  background: #fff;
   border-radius: 0.5rem;
   border: 1px solid #ccc;
-  padding: 0.8rem;
+  min-height: 120px;
   font-size: 1rem;
-  resize: vertical;
+  margin-bottom: 1rem;
+}
+.ql-toolbar {
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+.ql-container {
+  border-radius: 0 0 0.5rem 0.5rem;
 }
 @media (max-width: 600px) {
   .programs-grid {
@@ -117,4 +151,110 @@ header {
 .actividad-bloque ul {
   margin: 0.5rem 0 0 1.2rem;
   padding: 0;
+}
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: #fff;
+  margin: auto;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  position: relative;
+}
+.close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+  color: #888;
+  cursor: pointer;
+}
+@media (max-width: 600px) {
+  .modal-content {
+    padding: 1rem;
+  }
+}
+body.dark-mode {
+  background: #181824;
+  color: #e0e0e0;
+}
+.dark-mode header {
+  background: #23234a;
+  color: #fff;
+}
+.dark-mode .program-card {
+  background: #23234a;
+  color: #e0e0e0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.dark-mode .program-card i {
+  color: #fffbe7;
+}
+.dark-mode #program-detail {
+  background: #23234a;
+  color: #e0e0e0;
+}
+.dark-mode #program-notes,
+.dark-mode .ql-container {
+  background: #23234a;
+  color: #e0e0e0;
+}
+.dark-mode .modal-content {
+  background: #23234a;
+  color: #e0e0e0;
+}
+.dark-mode .actividad-bloque {
+  background: #23234a;
+  color: #e0e0e0;
+  border-left: 5px solid #6c63ff;
+}
+.highlight-search {
+  background: #ffe082;
+  color: #222;
+  border-radius: 0.2em;
+  padding: 0 0.2em;
+}
+.tag-chip {
+  display: inline-block;
+  background: #e0e0ff;
+  color: #23234a;
+  border-radius: 0.7em;
+  padding: 0.15em 0.7em;
+  font-size: 0.95em;
+  margin: 0 0.2em 0.2em 0;
+}
+.dark-mode .tag-chip {
+  background: #6c63ff;
+  color: #fff;
+}
+button, .btn-agregar, .btn-editar, .btn-eliminar, .btn-recordatorio, .btn-historial {
+  background: linear-gradient(90deg, #6c63ff 60%, #a084e8 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.45rem 1.1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  margin: 0.15rem 0.2rem;
+  box-shadow: 0 2px 8px rgba(108,99,255,0.08);
+  transition: background 0.18s, box-shadow 0.18s;
+}
+button:hover, .btn-agregar:hover, .btn-editar:hover, .btn-eliminar:hover, .btn-recordatorio:hover, .btn-historial:hover {
+  background: linear-gradient(90deg, #a084e8 60%, #6c63ff 100%);
+  box-shadow: 0 4px 16px rgba(108,99,255,0.13);
 } 
