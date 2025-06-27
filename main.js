@@ -172,10 +172,12 @@ function setActividades(program, acts) {
   localStorage.setItem('actividades_' + program, JSON.stringify(acts));
 }
 
-cards.forEach(card => {
-  card.addEventListener('click', () => {
-    currentProgram = card.dataset.programa;
-    showProgramDetail(currentProgram);
+document.addEventListener('DOMContentLoaded', function() {
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      currentProgram = card.dataset.programa;
+      showProgramDetail(currentProgram);
+    });
   });
 });
 
