@@ -164,15 +164,76 @@ header > div {
   border-left: 5px solid #6c63ff;
   border-radius: 0.7rem;
   margin-bottom: 1.2rem;
-  padding: 1rem 1.2rem;
+  padding: 1.2rem;
   box-shadow: 0 2px 8px rgba(108,99,255,0.06);
+  transition: all 0.3s ease;
+}
+.actividad-bloque:hover {
+  box-shadow: 0 4px 16px rgba(108,99,255,0.12);
+  transform: translateY(-2px);
 }
 .actividad-bloque strong {
   color: #6c63ff;
+  font-weight: 600;
 }
-.actividad-bloque ul {
-  margin: 0.5rem 0 0 1.2rem;
-  padding: 0;
+.actividad-nombre {
+  font-weight: 600;
+  color: #333;
+  transition: all 0.3s ease;
+}
+.actividad-tarea {
+  color: #555;
+  transition: all 0.3s ease;
+}
+.actividad-acciones {
+  margin-top: 0.5rem;
+}
+.actividad-etiquetas {
+  margin: 0.8rem 0;
+}
+.actividad-botones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+@media (max-width: 600px) {
+  .toggle-switch {
+    width: 45px;
+    height: 22px;
+  }
+  .toggle-switch.small {
+    width: 35px;
+    height: 18px;
+  }
+  .toggle-slider:before {
+    height: 16px;
+    width: 16px;
+  }
+  .toggle-switch.small .toggle-slider:before {
+    height: 12px;
+    width: 12px;
+  }
+  input:checked + .toggle-slider:before {
+    transform: translateX(23px);
+  }
+  .toggle-switch.small input:checked + .toggle-slider:before {
+    transform: translateX(17px);
+  }
+  .actividad-toggle,
+  .tarea-toggle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+  .accion-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+  .accion-texto {
+    margin-left: 0;
+  }
 }
 .modal {
   position: fixed;
@@ -279,4 +340,799 @@ button, .btn-agregar, .btn-editar, .btn-eliminar, .btn-recordatorio, .btn-histor
 button:hover, .btn-agregar:hover, .btn-editar:hover, .btn-eliminar:hover, .btn-recordatorio:hover, .btn-historial:hover {
   background: linear-gradient(90deg, #a084e8 60%, #6c63ff 100%);
   box-shadow: 0 4px 16px rgba(108,99,255,0.13);
+}
+/* Estilos para toggles de activación */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+  margin-right: 0.5rem;
+}
+.toggle-switch.small {
+  width: 40px;
+  height: 20px;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+.toggle-switch.small .toggle-slider:before {
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+}
+input:checked + .toggle-slider {
+  background-color: #6c63ff;
+}
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+.toggle-switch.small input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+/* Estilos para elementos inactivos */
+.inactivo {
+  opacity: 0.5;
+  text-decoration: line-through;
+  color: #999 !important;
+}
+/* Estilos para la estructura de actividades */
+.actividad-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.actividad-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.tarea-section {
+  margin-bottom: 0.5rem;
+}
+.tarea-toggle {
+  display: flex;
+  align-items: center;
+}
+.acciones-section {
+  margin-bottom: 0.5rem;
+}
+.accion-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.3rem;
+  padding: 0.2rem 0;
+}
+.accion-texto {
+  margin-left: 0.5rem;
+  flex: 1;
+}
+/* Estilos para el formulario */
+.form-section {
+  margin-bottom: 1rem;
+}
+.form-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #6c63ff;
+}
+.form-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.acciones-activas-info {
+  margin-top: 0.5rem;
+  color: #666;
+  font-style: italic;
+}
+/* Mejoras adicionales para toggles */
+.toggle-switch input:focus + .toggle-slider {
+  box-shadow: 0 0 1px #6c63ff;
+}
+
+.toggle-switch:hover .toggle-slider {
+  background-color: #b3b3b3;
+}
+
+.toggle-switch:hover input:checked + .toggle-slider {
+  background-color: #5a52d5;
+}
+
+/* Animación para elementos que se desactivan */
+.inactivo {
+  opacity: 0.5;
+  text-decoration: line-through;
+  color: #999 !important;
+  transition: all 0.3s ease;
+}
+
+/* Indicador visual para elementos activos/inactivos */
+.actividad-toggle::before,
+.tarea-toggle::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  background-color: #4caf50;
+  transition: all 0.3s ease;
+}
+
+.actividad-toggle:has(input:not(:checked))::before,
+.tarea-toggle:has(input:not(:checked))::before {
+  background-color: #f44336;
+}
+
+/* Mejoras para el formulario */
+.form-actividad {
+  background: #fafafa;
+  padding: 1.5rem;
+  border-radius: 0.8rem;
+  border: 1px solid #e0e0e0;
+}
+
+.form-section {
+  margin-bottom: 1.5rem;
+}
+
+.form-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-section input[type="text"] {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-section input[type="text"]:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.1);
+}
+
+/* Estilos para el modo oscuro */
+.dark-mode .toggle-slider {
+  background-color: #555;
+}
+
+.dark-mode input:checked + .toggle-slider {
+  background-color: #8b7cf6;
+}
+
+.dark-mode .inactivo {
+  color: #666 !important;
+}
+
+.dark-mode .form-actividad {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.dark-mode .form-section input[type="text"] {
+  background: #333;
+  border-color: #555;
+  color: #fff;
+}
+
+.dark-mode .form-section input[type="text"]:focus {
+  border-color: #8b7cf6;
+  box-shadow: 0 0 0 2px rgba(139, 124, 246, 0.1);
+}
+
+/* Responsive mejorado */
+@media (max-width: 480px) {
+  .actividad-bloque {
+    padding: 1rem;
+  }
+  
+  .actividad-botones {
+    flex-direction: column;
+  }
+  
+  .actividad-botones button {
+    width: 100%;
+    margin-bottom: 0.3rem;
+  }
+  
+  .form-buttons {
+    flex-direction: column;
+  }
+  
+  .form-buttons button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Estilos para checkboxes de completado */
+.completion-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.completion-checkbox.small {
+  width: 16px;
+  height: 16px;
+}
+
+.completion-checkbox input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.completion-checkbox.small .checkmark {
+  width: 16px;
+  height: 16px;
+  border-width: 1.5px;
+}
+
+.completion-checkbox:hover .checkmark {
+  border-color: #6c63ff;
+  background-color: #f8f8ff;
+}
+
+.completion-checkbox input:checked ~ .checkmark {
+  background-color: #4caf50;
+  border-color: #4caf50;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.completion-checkbox.small .checkmark:after {
+  left: 5px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border-width: 0 1.5px 1.5px 0;
+}
+
+.completion-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Estilos para elementos completados */
+.completada {
+  text-decoration: line-through;
+  color: #4caf50 !important;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* Fecha de completado */
+.fecha-completado {
+  background: #e8f5e8;
+  color: #2e7d32;
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-left: 3px solid #4caf50;
+}
+
+/* Mejoras en la estructura de acciones */
+.accion-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0.3rem 0;
+  border-radius: 0.3rem;
+  transition: background-color 0.3s ease;
+}
+
+.accion-item:hover {
+  background-color: rgba(108, 99, 255, 0.05);
+}
+
+.accion-item.completada {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+/* Botón de reiniciar */
+.btn-reset-completado {
+  background: linear-gradient(90deg, #ff9800 60%, #ff5722 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-reset-completado:hover {
+  background: linear-gradient(90deg, #ff5722 60%, #ff9800 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+/* Indicadores visuales mejorados */
+.actividad-bloque.completada {
+  border-left-color: #4caf50;
+  background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e8 100%);
+}
+
+.actividad-bloque.completada .actividad-nombre {
+  color: #2e7d32;
+}
+
+/* Modo oscuro para checkboxes */
+.dark-mode .checkmark {
+  background-color: #333;
+  border-color: #555;
+}
+
+.dark-mode .completion-checkbox:hover .checkmark {
+  border-color: #8b7cf6;
+  background-color: #2a2a2a;
+}
+
+.dark-mode .completion-checkbox input:checked ~ .checkmark {
+  background-color: #66bb6a;
+  border-color: #66bb6a;
+}
+
+.dark-mode .completada {
+  color: #66bb6a !important;
+}
+
+.dark-mode .fecha-completado {
+  background: #1b5e20;
+  color: #a5d6a7;
+  border-left-color: #66bb6a;
+}
+
+.dark-mode .accion-item:hover {
+  background-color: rgba(139, 124, 246, 0.1);
+}
+
+.dark-mode .accion-item.completada {
+  background-color: rgba(102, 187, 106, 0.1);
+}
+
+/* Animaciones para completado */
+@keyframes checkmarkAnimation {
+  0% {
+    transform: scale(0) rotate(45deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(45deg);
+  }
+  100% {
+    transform: scale(1) rotate(45deg);
+  }
+}
+
+.completion-checkbox input:checked ~ .checkmark:after {
+  animation: checkmarkAnimation 0.3s ease-in-out;
+}
+
+/* Responsive para checkboxes */
+@media (max-width: 600px) {
+  .completion-checkbox {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .completion-checkbox.small {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .checkmark {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .completion-checkbox.small .checkmark {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .checkmark:after {
+    left: 5px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+  }
+  
+  .completion-checkbox.small .checkmark:after {
+    left: 4px;
+    top: 1px;
+    width: 3px;
+    height: 6px;
+  }
+}
+
+/* Estilos para estadísticas de completado */
+.stats-completado {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.stats-completado h3 {
+  color: #6c63ff;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  text-align: center;
+  border: 1px solid #e9ecef;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #6c63ff;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.stat-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50 0%, #66bb6a 100%);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+.stat-percentage {
+  font-size: 0.8rem;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* Botón de estadísticas de completado */
+.btn-stats-completado {
+  background: linear-gradient(90deg, #4caf50 60%, #66bb6a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 0.5rem;
+}
+
+.btn-stats-completado:hover {
+  background: linear-gradient(90deg, #66bb6a 60%, #4caf50 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+/* Modo oscuro para estadísticas */
+.dark-mode .stats-completado {
+  border-top-color: #444;
+}
+
+.dark-mode .stat-item {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.dark-mode .stat-number {
+  color: #8b7cf6;
+}
+
+.dark-mode .stat-label {
+  color: #aaa;
+}
+
+.dark-mode .stat-bar {
+  background-color: #444;
+}
+
+.dark-mode .stat-progress {
+  background: linear-gradient(90deg, #66bb6a 0%, #81c784 100%);
+}
+
+.dark-mode .stat-percentage {
+  color: #66bb6a;
+}
+
+.dark-mode .btn-stats-completado {
+  background: linear-gradient(90deg, #66bb6a 60%, #81c784 100%);
+}
+
+.dark-mode .btn-stats-completado:hover {
+  background: linear-gradient(90deg, #81c784 60%, #66bb6a 100%);
+  box-shadow: 0 2px 8px rgba(102, 187, 106, 0.3);
+}
+
+/* Responsive para estadísticas */
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+  
+  .stat-item {
+    padding: 0.8rem;
+  }
+  
+  .stat-number {
+    font-size: 1.3rem;
+  }
+  
+  .btn-stats-completado {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+}
+
+/* Estilos para el modal de recordatorio */
+.recordatorio-modal {
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+}
+
+.recordatorio-content {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border: 3px solid #ff9800;
+  border-radius: 1rem;
+  max-width: 400px;
+  animation: recordatorioEntrada 0.5s ease-out;
+}
+
+.recordatorio-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(90deg, #ff9800 0%, #ff5722 100%);
+  color: white;
+  border-radius: 0.8rem 0.8rem 0 0;
+  margin: -1rem -1rem 1rem -1rem;
+}
+
+.recordatorio-icon {
+  font-size: 2rem;
+  animation: recordatorioPulso 1s infinite;
+}
+
+.recordatorio-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.recordatorio-body {
+  padding: 0 1rem 1rem 1rem;
+}
+
+.recordatorio-body p {
+  margin: 0;
+  line-height: 1.5;
+  color: #333;
+  font-size: 1rem;
+}
+
+.recordatorio-buttons {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem 1rem;
+}
+
+.btn-recordatorio-ok {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.btn-recordatorio-ok:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.btn-recordatorio-ir {
+  background: linear-gradient(90deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.btn-recordatorio-ir:hover {
+  background: linear-gradient(90deg, #66bb6a 0%, #4caf50 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+/* Animaciones para recordatorios */
+@keyframes recordatorioEntrada {
+  0% {
+    transform: scale(0.8) translateY(-50px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) translateY(0);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes recordatorioPulso {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes highlightRecordatorio {
+  0% {
+    background-color: rgba(255, 152, 0, 0.1);
+    transform: scale(1);
+  }
+  25% {
+    background-color: rgba(255, 152, 0, 0.3);
+    transform: scale(1.02);
+  }
+  50% {
+    background-color: rgba(255, 152, 0, 0.2);
+    transform: scale(1.01);
+  }
+  75% {
+    background-color: rgba(255, 152, 0, 0.1);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+/* Modo oscuro para recordatorios */
+.dark-mode .recordatorio-content {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  border-color: #ff9800;
+}
+
+.dark-mode .recordatorio-body p {
+  color: #fff;
+}
+
+.dark-mode .btn-recordatorio-ok {
+  background: #495057;
+}
+
+.dark-mode .btn-recordatorio-ok:hover {
+  background: #343a40;
+}
+
+/* Responsive para recordatorios */
+@media (max-width: 600px) {
+  .recordatorio-content {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+  
+  .recordatorio-buttons {
+    flex-direction: column;
+  }
+  
+  .recordatorio-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .recordatorio-icon {
+    font-size: 1.5rem;
+  }
 } 

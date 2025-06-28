@@ -6,6 +6,10 @@ const programTitle = document.getElementById('program-title');
 const programNotes = document.getElementById('program-notes');
 const notesToolbar = document.getElementById('notes-toolbar');
 
+// Variables globales para recordatorios
+let recordatoriosActivos = new Map();
+let audioAlarma = null;
+
 // Nuevo: contenedor para actividades
 let programActivities = document.getElementById('program-activities');
 if (!programActivities) {
@@ -27,7 +31,13 @@ const defaultActividades = {
         'Elegir canción espiritual',
         'Entonar con emoción',
         'Reflexionar sobre la letra'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     },
     {
       actividad: 'Orar',
@@ -36,7 +46,13 @@ const defaultActividades = {
         'Buscar un momento de silencio',
         'Expresar gratitud, petición, reflexión',
         'Finalizar en calma'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     },
     {
       actividad: 'Estudiar la Biblia',
@@ -45,7 +61,13 @@ const defaultActividades = {
         'Leer un pasaje',
         'Analizar su significado',
         'Aplicarlo a la vida'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     }
   ],
   cuerpo: [
@@ -56,7 +78,13 @@ const defaultActividades = {
         'Calentar con estiramiento',
         'Realizar rutina específica',
         'Estirar para finalizar'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     }
   ],
   familia: [
@@ -67,7 +95,13 @@ const defaultActividades = {
         'Conversar con interés',
         'Jugar o hacer algo juntos',
         'Escuchar activamente'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     }
   ],
   trabajo: [
@@ -78,7 +112,13 @@ const defaultActividades = {
         'Observar y anotar tiempos',
         'Organizar parqueo',
         'Coordinar flujos'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     },
     {
       actividad: 'Contar monedas o pagos',
@@ -87,7 +127,13 @@ const defaultActividades = {
         'Separar por valor',
         'Registrar en libreta/app',
         'Guardar con seguridad'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     }
   ],
   estudio: [
@@ -98,7 +144,13 @@ const defaultActividades = {
         'Elegir tema',
         'Tomar apuntes',
         'Aplicar lo aprendido'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     }
   ],
   recreacion: [
@@ -109,7 +161,13 @@ const defaultActividades = {
         'Escoger juego adecuado',
         'Establecer duración',
         'Reflexionar después'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     },
     {
       actividad: 'Ver películas',
@@ -118,7 +176,13 @@ const defaultActividades = {
         'Seleccionar contenido',
         'Disfrutar con atención',
         'Conversar si es en grupo'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     }
   ],
   casa: [
@@ -129,7 +193,13 @@ const defaultActividades = {
         'Escoger zona',
         'Recolectar y clasificar objetos',
         'Limpiar superficies'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     }
   ],
   social: [
@@ -140,7 +210,13 @@ const defaultActividades = {
         'Saludar con sonrisa',
         'Usar frases como "gracias", "por favor"',
         'Contacto visual amable'
-      ]
+      ],
+      activo: true,
+      tareaActiva: true,
+      accionesActivas: [true, true, true],
+      tareaCompletada: false,
+      accionesCompletadas: [false, false, false],
+      fechaCompletado: null
     }
   ]
 };
@@ -172,7 +248,61 @@ function setActividades(program, acts) {
   localStorage.setItem('actividades_' + program, JSON.stringify(acts));
 }
 
+// Función para migrar datos existentes a la nueva estructura con campos de activación
+function migrarDatosActividades() {
+  const programas = ['espiritual', 'cuerpo', 'familia', 'trabajo', 'estudio', 'recreacion', 'casa', 'social'];
+  
+  programas.forEach(program => {
+    const data = localStorage.getItem('actividades_' + program);
+    if (data) {
+      try {
+        const acts = JSON.parse(data);
+        let needsUpdate = false;
+        
+        acts.forEach(act => {
+          // Agregar campos de activación si no existen
+          if (act.activo === undefined) {
+            act.activo = true;
+            needsUpdate = true;
+          }
+          if (act.tareaActiva === undefined) {
+            act.tareaActiva = true;
+            needsUpdate = true;
+          }
+          if (act.accionesActivas === undefined) {
+            act.accionesActivas = act.acciones ? act.acciones.map(() => true) : [];
+            needsUpdate = true;
+          }
+          // Agregar campos de completado si no existen
+          if (act.tareaCompletada === undefined) {
+            act.tareaCompletada = false;
+            needsUpdate = true;
+          }
+          if (act.accionesCompletadas === undefined) {
+            act.accionesCompletadas = act.acciones ? act.acciones.map(() => false) : [];
+            needsUpdate = true;
+          }
+          if (act.fechaCompletado === undefined) {
+            act.fechaCompletado = null;
+            needsUpdate = true;
+          }
+        });
+        
+        // Guardar solo si se realizaron cambios
+        if (needsUpdate) {
+          localStorage.setItem('actividades_' + program, JSON.stringify(acts));
+        }
+      } catch (e) {
+        console.error('Error migrando datos para programa:', program, e);
+      }
+    }
+  });
+}
+
+// Ejecutar migración al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
+  migrarDatosActividades();
+  
   cards.forEach(card => {
     card.addEventListener('click', () => {
       currentProgram = card.dataset.programa;
@@ -248,23 +378,94 @@ function renderActividades(program) {
   programActivities.innerHTML = '';
   const acts = getActividades(program);
   acts.forEach((act, idx) => {
+    // Asegurar que los campos de activación y completado existan
+    if (act.activo === undefined) act.activo = true;
+    if (act.tareaActiva === undefined) act.tareaActiva = true;
+    if (act.accionesActivas === undefined) {
+      act.accionesActivas = act.acciones ? act.acciones.map(() => true) : [];
+    }
+    if (act.tareaCompletada === undefined) act.tareaCompletada = false;
+    if (act.accionesCompletadas === undefined) {
+      act.accionesCompletadas = act.acciones ? act.acciones.map(() => false) : [];
+    }
+    if (act.fechaCompletado === undefined) act.fechaCompletado = null;
+    
     const actDiv = document.createElement('div');
     actDiv.className = 'actividad-bloque';
+    
+    // Crear toggles para activación
+    const actividadToggle = `<label class="toggle-switch">
+      <input type="checkbox" ${act.activo ? 'checked' : ''} data-type="actividad" data-idx="${idx}">
+      <span class="toggle-slider"></span>
+    </label>`;
+    
+    const tareaToggle = `<label class="toggle-switch">
+      <input type="checkbox" ${act.tareaActiva ? 'checked' : ''} data-type="tarea" data-idx="${idx}">
+      <span class="toggle-slider"></span>
+    </label>`;
+    
+    // Crear checkbox para completado de tarea
+    const tareaCompletadaCheckbox = `<label class="completion-checkbox">
+      <input type="checkbox" ${act.tareaCompletada ? 'checked' : ''} data-type="tarea-completada" data-idx="${idx}">
+      <span class="checkmark"></span>
+    </label>`;
+    
+    // Crear toggles y checkboxes para cada acción
+    const accionesToggles = act.acciones ? act.acciones.map((accion, accionIdx) => {
+      const isActive = act.accionesActivas[accionIdx] !== false;
+      const isCompleted = act.accionesCompletadas[accionIdx] === true;
+      return `<div class="accion-item">
+        <label class="toggle-switch small">
+          <input type="checkbox" ${isActive ? 'checked' : ''} data-type="accion" data-idx="${idx}" data-accion-idx="${accionIdx}">
+          <span class="toggle-slider"></span>
+        </label>
+        <label class="completion-checkbox small">
+          <input type="checkbox" ${isCompleted ? 'checked' : ''} data-type="accion-completada" data-idx="${idx}" data-accion-idx="${accionIdx}">
+          <span class="checkmark"></span>
+        </label>
+        <span class="accion-texto ${isActive ? '' : 'inactivo'} ${isCompleted ? 'completada' : ''}">${accion}</span>
+      </div>`;
+    }).join('') : '';
+    
+    // Mostrar fecha de completado si existe
+    const fechaCompletadoInfo = act.fechaCompletado ? 
+      `<div class="fecha-completado">✅ Completado el: ${new Date(act.fechaCompletado).toLocaleDateString()}</div>` : '';
+    
     actDiv.innerHTML = `
-      <strong>Actividad ${idx + 1}:</strong> <span class="actividad-nombre">${act.actividad}</span><br>
-      <strong>Tarea:</strong> <span class="actividad-tarea">${act.tarea}</span><br>
-      <strong>Acciones:</strong>
-      <div class="actividad-acciones">${act.acciones ? act.acciones.join('') : ''}</div>
+      <div class="actividad-header">
+        <div class="actividad-toggle">
+          ${actividadToggle}
+          <strong>Actividad ${idx + 1}:</strong> 
+          <span class="actividad-nombre ${act.activo ? '' : 'inactivo'}">${act.actividad}</span>
+        </div>
+      </div>
+      <div class="tarea-section">
+        <div class="tarea-toggle">
+          ${tareaToggle}
+          <strong>Tarea:</strong> 
+          <span class="actividad-tarea ${act.tareaActiva ? '' : 'inactivo'} ${act.tareaCompletada ? 'completada' : ''}">${act.tarea}</span>
+          ${tareaCompletadaCheckbox}
+        </div>
+      </div>
+      <div class="acciones-section">
+        <strong>Acciones:</strong>
+        <div class="actividad-acciones">
+          ${accionesToggles}
+        </div>
+      </div>
+      ${fechaCompletadoInfo}
       <div class="actividad-etiquetas">${(act.tags || []).map(t => `<span class='tag-chip'>${t}</span>`).join('')}</div>
       <div class="actividad-botones">
         <button class="btn-editar" data-idx="${idx}">Editar</button>
         <button class="btn-eliminar" data-idx="${idx}">Eliminar</button>
         <button class="btn-recordatorio" data-idx="${idx}">Recordatorio</button>
         <button class="btn-historial" data-idx="${idx}">Historial</button>
+        <button class="btn-reset-completado" data-idx="${idx}">Reiniciar</button>
       </div>
       <div class="recordatorio-info" id="recordatorio-info-${idx}"></div>
     `;
     programActivities.appendChild(actDiv);
+    
     // Mostrar info de recordatorio si existe
     const key = `recordatorio_${program}_${idx}`;
     const fechaHora = localStorage.getItem(key);
@@ -276,6 +477,7 @@ function renderActividades(program) {
       }
     }
   });
+  
   // Botón para agregar nueva actividad
   const addBtn = document.createElement('button');
   addBtn.textContent = '+ Agregar actividad';
@@ -283,7 +485,114 @@ function renderActividades(program) {
   addBtn.onclick = () => mostrarFormularioActividad(program);
   programActivities.appendChild(addBtn);
 
-  // Listeners para editar, eliminar, recordatorio e historial
+  // Listeners para toggles de activación
+  programActivities.querySelectorAll('.toggle-switch input').forEach(toggle => {
+    toggle.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      const type = e.target.dataset.type;
+      const accionIdx = e.target.dataset.accionIdx;
+      const isChecked = e.target.checked;
+      
+      const acts = getActividades(program);
+      if (acts[idx]) {
+        if (type === 'actividad') {
+          acts[idx].activo = isChecked;
+        } else if (type === 'tarea') {
+          acts[idx].tareaActiva = isChecked;
+        } else if (type === 'accion' && accionIdx !== undefined) {
+          if (!acts[idx].accionesActivas) {
+            acts[idx].accionesActivas = acts[idx].acciones.map(() => true);
+          }
+          acts[idx].accionesActivas[parseInt(accionIdx)] = isChecked;
+        }
+        setActividades(program, acts);
+        
+        // Actualizar visualización
+        const actividadDiv = e.target.closest('.actividad-bloque');
+        if (type === 'actividad') {
+          const nombreSpan = actividadDiv.querySelector('.actividad-nombre');
+          nombreSpan.classList.toggle('inactivo', !isChecked);
+        } else if (type === 'tarea') {
+          const tareaSpan = actividadDiv.querySelector('.actividad-tarea');
+          tareaSpan.classList.toggle('inactivo', !isChecked);
+        } else if (type === 'accion') {
+          const accionSpan = actividadDiv.querySelector(`[data-accion-idx="${accionIdx}"]`).closest('.accion-item').querySelector('.accion-texto');
+          accionSpan.classList.toggle('inactivo', !isChecked);
+        }
+      }
+    });
+  });
+
+  // Listeners para checkboxes de completado
+  programActivities.querySelectorAll('.completion-checkbox input').forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      const type = e.target.dataset.type;
+      const accionIdx = e.target.dataset.accionIdx;
+      const isChecked = e.target.checked;
+      
+      const acts = getActividades(program);
+      if (acts[idx]) {
+        if (type === 'tarea-completada') {
+          acts[idx].tareaCompletada = isChecked;
+          if (isChecked) {
+            acts[idx].fechaCompletado = Date.now();
+          } else {
+            acts[idx].fechaCompletado = null;
+          }
+        } else if (type === 'accion-completada' && accionIdx !== undefined) {
+          if (!acts[idx].accionesCompletadas) {
+            acts[idx].accionesCompletadas = acts[idx].acciones.map(() => false);
+          }
+          acts[idx].accionesCompletadas[parseInt(accionIdx)] = isChecked;
+          
+          // Verificar si todas las acciones están completadas
+          const todasCompletadas = acts[idx].accionesCompletadas.every(completada => completada);
+          if (todasCompletadas && !acts[idx].tareaCompletada) {
+            acts[idx].tareaCompletada = true;
+            acts[idx].fechaCompletado = Date.now();
+          }
+        }
+        setActividades(program, acts);
+        
+        // Actualizar visualización
+        const actividadDiv = e.target.closest('.actividad-bloque');
+        if (type === 'tarea-completada') {
+          const tareaSpan = actividadDiv.querySelector('.actividad-tarea');
+          tareaSpan.classList.toggle('completada', isChecked);
+          
+          // Actualizar info de fecha
+          const fechaInfo = actividadDiv.querySelector('.fecha-completado');
+          if (isChecked) {
+            if (!fechaInfo) {
+              const newFechaInfo = document.createElement('div');
+              newFechaInfo.className = 'fecha-completado';
+              newFechaInfo.textContent = `✅ Completado el: ${new Date().toLocaleDateString()}`;
+              actividadDiv.insertBefore(newFechaInfo, actividadDiv.querySelector('.actividad-etiquetas'));
+            }
+          } else {
+            if (fechaInfo) {
+              fechaInfo.remove();
+            }
+          }
+        } else if (type === 'accion-completada') {
+          const accionSpan = actividadDiv.querySelector(`[data-accion-idx="${accionIdx}"]`).closest('.accion-item').querySelector('.accion-texto');
+          accionSpan.classList.toggle('completada', isChecked);
+          
+          // Actualizar checkbox de tarea si todas las acciones están completadas
+          const tareaCheckbox = actividadDiv.querySelector('[data-type="tarea-completada"]');
+          if (tareaCheckbox) {
+            const todasCompletadas = acts[idx].accionesCompletadas.every(completada => completada);
+            tareaCheckbox.checked = todasCompletadas;
+            const tareaSpan = actividadDiv.querySelector('.actividad-tarea');
+            tareaSpan.classList.toggle('completada', todasCompletadas);
+          }
+        }
+      }
+    });
+  });
+
+  // Listeners para editar, eliminar, recordatorio, historial y reiniciar
   programActivities.querySelectorAll('.btn-editar').forEach(btn => {
     btn.onclick = () => mostrarFormularioActividad(program, parseInt(btn.dataset.idx));
   });
@@ -326,28 +635,107 @@ function renderActividades(program) {
       showActividadHistory(program, idx);
     };
   });
+  programActivities.querySelectorAll('.btn-reset-completado').forEach(btn => {
+    btn.onclick = () => {
+      const idx = parseInt(btn.dataset.idx);
+      if (confirm('¿Reiniciar el estado de completado de esta actividad?')) {
+        const acts = getActividades(program);
+        if (acts[idx]) {
+          acts[idx].tareaCompletada = false;
+          acts[idx].accionesCompletadas = acts[idx].acciones ? acts[idx].acciones.map(() => false) : [];
+          acts[idx].fechaCompletado = null;
+          setActividades(program, acts);
+          renderActividades(program);
+        }
+      }
+    };
+  });
+  
+  // Agregar botón de estadísticas de completado si no existe
+  if (!document.getElementById('stats-completado-btn')) {
+    const statsCompletadoBtn = document.createElement('button');
+    statsCompletadoBtn.id = 'stats-completado-btn';
+    statsCompletadoBtn.textContent = '📊 Progreso';
+    statsCompletadoBtn.className = 'btn-stats-completado';
+    statsCompletadoBtn.onclick = () => mostrarEstadisticasCompletado();
+    
+    // Insertar después del botón de estadísticas existente
+    const statsBtn = document.getElementById('stats-btn');
+    if (statsBtn && statsBtn.parentNode) {
+      statsBtn.parentNode.insertBefore(statsCompletadoBtn, statsBtn.nextSibling);
+    }
+  }
+  
   updateTagFilter();
   evitarPropagacionBotones();
 }
 
 function mostrarFormularioActividad(program, idx = null) {
   const acts = getActividades(program);
-  let act = { actividad: '', tarea: '', acciones: [''], tags: [] };
-  if (idx !== null) act = { ...acts[idx], acciones: [...acts[idx].acciones], tags: acts[idx].tags || [] };
+  let act = { 
+    actividad: '', 
+    tarea: '', 
+    acciones: [''], 
+    tags: [],
+    activo: true,
+    tareaActiva: true,
+    accionesActivas: [true],
+    tareaCompletada: false,
+    accionesCompletadas: [false],
+    fechaCompletado: null
+  };
+  if (idx !== null) {
+    act = { 
+      ...acts[idx], 
+      acciones: [...acts[idx].acciones], 
+      tags: acts[idx].tags || [],
+      activo: acts[idx].activo !== undefined ? acts[idx].activo : true,
+      tareaActiva: acts[idx].tareaActiva !== undefined ? acts[idx].tareaActiva : true,
+      accionesActivas: acts[idx].accionesActivas || acts[idx].acciones.map(() => true),
+      tareaCompletada: acts[idx].tareaCompletada !== undefined ? acts[idx].tareaCompletada : false,
+      accionesCompletadas: acts[idx].accionesCompletadas || acts[idx].acciones.map(() => false),
+      fechaCompletado: acts[idx].fechaCompletado || null
+    };
+  }
 
   // Crear formulario con Quill para tarea y acciones
   const formDiv = document.createElement('div');
   formDiv.className = 'actividad-bloque';
   formDiv.innerHTML = `
     <form class="form-actividad">
-      <label>Actividad:<br><input type="text" name="actividad" value="${act.actividad}" required></label><br>
-      <label>Tarea:</label>
-      <div id="quill-tarea" style="height: 60px;"></div><br>
-      <label>Acciones:</label>
-      <div id="quill-acciones" style="height: 90px;"></div><br>
-      <label>Etiquetas:<br><input type="text" name="tags" value="${act.tags ? act.tags.join(', ') : ''}" placeholder="Etiquetas (separadas por coma)" style="width:100%; border-radius:0.4rem; border:1px solid #ccc; padding:0.4rem;" /></label><br>
-      <button type="submit">${idx !== null ? 'Guardar cambios' : 'Agregar actividad'}</button>
-      <button type="button" class="btn-cancelar">Cancelar</button>
+      <div class="form-section">
+        <label class="form-label">
+          <input type="checkbox" name="activo" ${act.activo ? 'checked' : ''} style="margin-right: 0.5rem;">
+          Actividad activa
+        </label>
+        <label>Actividad:<br><input type="text" name="actividad" value="${act.actividad}" required></label>
+      </div>
+      
+      <div class="form-section">
+        <label class="form-label">
+          <input type="checkbox" name="tareaActiva" ${act.tareaActiva ? 'checked' : ''} style="margin-right: 0.5rem;">
+          Tarea activa
+        </label>
+        <label>Tarea:</label>
+        <div id="quill-tarea" style="height: 60px;"></div>
+      </div>
+      
+      <div class="form-section">
+        <label>Acciones:</label>
+        <div id="quill-acciones" style="height: 90px;"></div>
+        <div class="acciones-activas-info">
+          <small>Las acciones se activarán automáticamente. Puedes desactivarlas después de guardar.</small>
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <label>Etiquetas:<br><input type="text" name="tags" value="${act.tags ? act.tags.join(', ') : ''}" placeholder="Etiquetas (separadas por coma)" style="width:100%; border-radius:0.4rem; border:1px solid #ccc; padding:0.4rem;" /></label>
+      </div>
+      
+      <div class="form-buttons">
+        <button type="submit">${idx !== null ? 'Guardar cambios' : 'Agregar actividad'}</button>
+        <button type="button" class="btn-cancelar">Cancelar</button>
+      </div>
     </form>
   `;
   programActivities.innerHTML = '';
@@ -374,13 +762,36 @@ function mostrarFormularioActividad(program, idx = null) {
   // Guardar
   formDiv.querySelector('form').onsubmit = e => {
     e.preventDefault();
+    
+    // Obtener el contenido de Quill y dividirlo en acciones individuales
+    const accionesHtml = quillAcciones.root.innerHTML;
+    const accionesArray = accionesHtml.split('<br>').filter(accion => accion.trim() !== '');
+    
     const nuevaActividad = {
       actividad: formDiv.querySelector('input[name="actividad"]').value,
       tarea: quillTarea.root.innerHTML,
-      acciones: [quillAcciones.root.innerHTML],
-      tags: getTagsFromString(formDiv.querySelector('input[name="tags"]').value)
+      acciones: accionesArray,
+      tags: getTagsFromString(formDiv.querySelector('input[name="tags"]').value),
+      activo: formDiv.querySelector('input[name="activo"]').checked,
+      tareaActiva: formDiv.querySelector('input[name="tareaActiva"]').checked,
+      accionesActivas: accionesArray.map(() => true), // Todas las acciones activas por defecto
+      tareaCompletada: false, // Nueva actividad no completada
+      accionesCompletadas: accionesArray.map(() => false), // Ninguna acción completada
+      fechaCompletado: null // Sin fecha de completado
     };
+    
     if (idx !== null) {
+      // Preservar estados de activación y completado de acciones existentes si es posible
+      if (acts[idx].accionesActivas && acts[idx].accionesActivas.length === accionesArray.length) {
+        nuevaActividad.accionesActivas = acts[idx].accionesActivas;
+      }
+      if (acts[idx].accionesCompletadas && acts[idx].accionesCompletadas.length === accionesArray.length) {
+        nuevaActividad.accionesCompletadas = acts[idx].accionesCompletadas;
+      }
+      // Preservar estado de completado de tarea
+      nuevaActividad.tareaCompletada = acts[idx].tareaCompletada || false;
+      nuevaActividad.fechaCompletado = acts[idx].fechaCompletado || null;
+      
       acts[idx] = nuevaActividad;
       setActividades(program, acts);
       saveActividadHistory(program, idx, nuevaActividad);
@@ -462,28 +873,257 @@ if (restoreBtn && restoreFile) {
 
 // --- Recordatorios por actividad ---
 function solicitarPermisoNotificaciones() {
-  if (Notification && Notification.permission !== 'granted') {
-    Notification.requestPermission();
+  if ('Notification' in window) {
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          console.log('Permisos de notificación concedidos');
+        }
+      });
+    } else if (Notification.permission === 'denied') {
+      alert('Para recibir recordatorios, por favor habilita las notificaciones en tu navegador.');
+    }
+  } else {
+    alert('Tu navegador no soporta notificaciones. Los recordatorios no funcionarán.');
   }
 }
 
+// Función para crear y cargar el audio de alarma
+function crearAudioAlarma() {
+  if (!audioAlarma) {
+    audioAlarma = new Audio();
+    
+    // Crear un tono de alarma usando Web Audio API
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+    oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.3);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+    
+    // También crear un audio de respaldo usando data URL
+    const audioData = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT';
+    audioAlarma.src = audioData;
+    audioAlarma.load();
+  }
+}
+
+// Función para reproducir alarma
+function reproducirAlarma() {
+  try {
+    // Intentar usar Web Audio API primero
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Crear un patrón de alarma más llamativo
+    const now = audioContext.currentTime;
+    oscillator.frequency.setValueAtTime(800, now);
+    oscillator.frequency.setValueAtTime(600, now + 0.1);
+    oscillator.frequency.setValueAtTime(800, now + 0.2);
+    oscillator.frequency.setValueAtTime(600, now + 0.3);
+    oscillator.frequency.setValueAtTime(800, now + 0.4);
+    oscillator.frequency.setValueAtTime(600, now + 0.5);
+    
+    gainNode.gain.setValueAtTime(0.3, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+    
+    oscillator.start(now);
+    oscillator.stop(now + 0.6);
+    
+    // Repetir el patrón
+    setTimeout(() => {
+      const oscillator2 = audioContext.createOscillator();
+      const gainNode2 = audioContext.createGain();
+      
+      oscillator2.connect(gainNode2);
+      gainNode2.connect(audioContext.destination);
+      
+      const now2 = audioContext.currentTime;
+      oscillator2.frequency.setValueAtTime(800, now2);
+      oscillator2.frequency.setValueAtTime(600, now2 + 0.1);
+      oscillator2.frequency.setValueAtTime(800, now2 + 0.2);
+      oscillator2.frequency.setValueAtTime(600, now2 + 0.3);
+      
+      gainNode2.gain.setValueAtTime(0.3, now2);
+      gainNode2.gain.exponentialRampToValueAtTime(0.01, now2 + 0.4);
+      
+      oscillator2.start(now2);
+      oscillator2.stop(now2 + 0.4);
+    }, 700);
+    
+  } catch (error) {
+    console.log('Error reproduciendo alarma:', error);
+    // Fallback: intentar reproducir audio del navegador
+    if (audioAlarma) {
+      audioAlarma.play().catch(e => console.log('Error reproduciendo audio:', e));
+    }
+  }
+}
+
+// Función para programar recordatorio
 function programarRecordatorio(program, idx, actividad, fechaHora) {
   const key = `recordatorio_${program}_${idx}`;
   localStorage.setItem(key, fechaHora);
-  revisarRecordatorios();
+  
+  // Calcular tiempo hasta el recordatorio
+  const tiempoHastaRecordatorio = fechaHora - Date.now();
+  
+  if (tiempoHastaRecordatorio > 0) {
+    // Programar el recordatorio
+    const timeoutId = setTimeout(() => {
+      mostrarRecordatorio(program, idx, actividad);
+    }, tiempoHastaRecordatorio);
+    
+    // Guardar el timeout ID para poder cancelarlo
+    recordatoriosActivos.set(key, timeoutId);
+    
+    console.log(`Recordatorio programado para: ${new Date(fechaHora).toLocaleString()}`);
+  } else {
+    // Si la fecha ya pasó, mostrar inmediatamente
+    mostrarRecordatorio(program, idx, actividad);
+  }
 }
 
+// Función para mostrar recordatorio
+function mostrarRecordatorio(program, idx, actividad) {
+  // Reproducir alarma
+  reproducirAlarma();
+  
+  // Mostrar notificación del navegador
+  if ('Notification' in window && Notification.permission === 'granted') {
+    const notificacion = new Notification('⏰ ¡Recordatorio de Actividad!', {
+      body: `Programa: ${nombres[program]}\nActividad: ${actividad}\n\n¡Es hora de realizar esta actividad!`,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: `recordatorio_${program}_${idx}`,
+      requireInteraction: true,
+      silent: false
+    });
+    
+    // Manejar clic en la notificación
+    notificacion.onclick = function() {
+      window.focus();
+      // Navegar a la actividad específica
+      if (currentProgram !== program) {
+        showProgramDetail(program);
+      }
+      // Resaltar la actividad
+      setTimeout(() => {
+        const actividadElement = document.querySelector(`[data-idx="${idx}"]`);
+        if (actividadElement) {
+          actividadElement.closest('.actividad-bloque').style.animation = 'highlightRecordatorio 2s ease-in-out';
+        }
+      }, 500);
+    };
+    
+    // Auto-cerrar la notificación después de 10 segundos
+    setTimeout(() => {
+      notificacion.close();
+    }, 10000);
+  }
+  
+  // Mostrar alerta en la página también
+  const mensaje = `⏰ ¡Recordatorio!\n\nPrograma: ${nombres[program]}\nActividad: ${actividad}\n\n¡Es hora de realizar esta actividad!`;
+  
+  // Crear modal de recordatorio personalizado
+  mostrarModalRecordatorio(mensaje, program, idx);
+  
+  // Limpiar el recordatorio
+  const key = `recordatorio_${program}_${idx}`;
+  localStorage.removeItem(key);
+  recordatoriosActivos.delete(key);
+}
+
+// Función para mostrar modal de recordatorio
+function mostrarModalRecordatorio(mensaje, program, idx) {
+  // Crear modal si no existe
+  let modalRecordatorio = document.getElementById('modal-recordatorio');
+  if (!modalRecordatorio) {
+    modalRecordatorio = document.createElement('div');
+    modalRecordatorio.id = 'modal-recordatorio';
+    modalRecordatorio.className = 'modal recordatorio-modal';
+    modalRecordatorio.innerHTML = `
+      <div class="modal-content recordatorio-content">
+        <div class="recordatorio-header">
+          <span class="recordatorio-icon">⏰</span>
+          <h2>¡Recordatorio!</h2>
+        </div>
+        <div class="recordatorio-body">
+          <p id="recordatorio-mensaje"></p>
+        </div>
+        <div class="recordatorio-buttons">
+          <button id="recordatorio-ok" class="btn-recordatorio-ok">Entendido</button>
+          <button id="recordatorio-ir" class="btn-recordatorio-ir">Ir a la actividad</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modalRecordatorio);
+    
+    // Event listeners
+    document.getElementById('recordatorio-ok').onclick = () => {
+      modalRecordatorio.style.display = 'none';
+    };
+    
+    document.getElementById('recordatorio-ir').onclick = () => {
+      modalRecordatorio.style.display = 'none';
+      if (currentProgram !== program) {
+        showProgramDetail(program);
+      }
+      setTimeout(() => {
+        const actividadElement = document.querySelector(`[data-idx="${idx}"]`);
+        if (actividadElement) {
+          actividadElement.closest('.actividad-bloque').style.animation = 'highlightRecordatorio 2s ease-in-out';
+        }
+      }, 500);
+    };
+  }
+  
+  // Mostrar el mensaje
+  document.getElementById('recordatorio-mensaje').textContent = mensaje;
+  modalRecordatorio.style.display = 'flex';
+  
+  // Auto-cerrar después de 30 segundos
+  setTimeout(() => {
+    if (modalRecordatorio.style.display === 'flex') {
+      modalRecordatorio.style.display = 'none';
+    }
+  }, 30000);
+}
+
+// Función para cancelar recordatorio
 function cancelarRecordatorio(program, idx) {
   const key = `recordatorio_${program}_${idx}`;
   localStorage.removeItem(key);
+  
+  // Cancelar el timeout si existe
+  const timeoutId = recordatoriosActivos.get(key);
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+    recordatoriosActivos.delete(key);
+  }
 }
 
+// Función para revisar recordatorios (mantener para compatibilidad)
 function revisarRecordatorios() {
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
   const ahora = Date.now();
   for (let i = 0; i < localStorage.length; i++) {
     const clave = localStorage.key(i);
-    if (clave.startsWith('recordatorio_')) {
+    if (clave && clave.startsWith('recordatorio_')) {
       const fechaHora = parseInt(localStorage.getItem(clave));
       if (!isNaN(fechaHora) && fechaHora <= ahora) {
         // Obtener info de la actividad
@@ -492,16 +1132,33 @@ function revisarRecordatorios() {
         const idx = parseInt(partes[2]);
         const acts = getActividades(program);
         if (acts[idx]) {
-          new Notification('¡Recordatorio!', {
-            body: `Actividad: ${acts[idx].actividad}`
-          });
+          mostrarRecordatorio(program, idx, acts[idx].actividad);
         }
-        localStorage.removeItem(clave);
       }
     }
   }
 }
-setInterval(revisarRecordatorios, 30000); // Revisar cada 30 segundos
+
+// Inicializar sistema de recordatorios
+document.addEventListener('DOMContentLoaded', function() {
+  crearAudioAlarma();
+  solicitarPermisoNotificaciones();
+  
+  // Revisar recordatorios cada minuto
+  setInterval(revisarRecordatorios, 60000);
+  
+  // Revisar recordatorios al cargar la página
+  setTimeout(revisarRecordatorios, 1000);
+  
+  // Botón de prueba de alarma
+  const testAlarmBtn = document.getElementById('test-alarm-btn');
+  if (testAlarmBtn) {
+    testAlarmBtn.onclick = function() {
+      reproducirAlarma();
+      mostrarModalRecordatorio('🔔 ¡Prueba de alarma!\n\nEsta es una prueba del sistema de recordatorios.\n\nLa alarma debería haber sonado.', 'test', 0);
+    };
+  }
+});
 
 // --- Estadísticas y seguimiento ---
 const statsBtn = document.getElementById('stats-btn');
@@ -1002,11 +1659,44 @@ function getProgramaTexto(program) {
   const tags = JSON.parse(localStorage.getItem('tags_notas_' + program) || '[]');
   if (tags.length) texto += `Etiquetas: ${tags.join(', ')}\n`;
   const acts = getActividades(program);
+  
   acts.forEach((act, idx) => {
-    texto += `\nActividad ${idx + 1}: ${act.actividad}\n`;
-    texto += `Tarea: ${stripHtml(act.tarea)}\n`;
-    texto += `Acciones: ${act.acciones ? stripHtml(act.acciones.join(' ')) : ''}\n`;
-    if (act.tags && act.tags.length) texto += `Etiquetas: ${act.tags.join(', ')}\n`;
+    // Solo incluir actividades activas
+    if (act.activo !== false) {
+      texto += `\nActividad ${idx + 1}: ${act.actividad}`;
+      
+      // Mostrar estado de completado
+      if (act.tareaCompletada) {
+        const fecha = act.fechaCompletado ? new Date(act.fechaCompletado).toLocaleDateString() : 'Fecha no registrada';
+        texto += ` ✅ (Completada el ${fecha})`;
+      }
+      texto += '\n';
+      
+      // Solo incluir tarea si está activa
+      if (act.tareaActiva !== false) {
+        texto += `Tarea: ${stripHtml(act.tarea)}`;
+        if (act.tareaCompletada) texto += ' ✅';
+        texto += '\n';
+      }
+      
+      // Solo incluir acciones activas
+      if (act.acciones && act.acciones.length > 0) {
+        const accionesActivas = act.acciones.filter((accion, accionIdx) => {
+          return act.accionesActivas && act.accionesActivas[accionIdx] !== false;
+        });
+        if (accionesActivas.length > 0) {
+          texto += `Acciones:`;
+          accionesActivas.forEach((accion, accionIdx) => {
+            const originalIdx = act.acciones.indexOf(accion);
+            const isCompleted = act.accionesCompletadas && act.accionesCompletadas[originalIdx];
+            texto += `\n  - ${stripHtml(accion)}${isCompleted ? ' ✅' : ''}`;
+          });
+          texto += '\n';
+        }
+      }
+      
+      if (act.tags && act.tags.length) texto += `Etiquetas: ${act.tags.join(', ')}\n`;
+    }
   });
   return texto;
 }
@@ -1164,4 +1854,105 @@ function evitarPropagacionBotones() {
       e.stopPropagation();
     });
   });
+}
+
+// Función para obtener estadísticas de completado
+function getEstadisticasCompletado(program) {
+  const acts = getActividades(program);
+  let totalActividades = 0;
+  let actividadesCompletadas = 0;
+  let totalTareas = 0;
+  let tareasCompletadas = 0;
+  let totalAcciones = 0;
+  let accionesCompletadas = 0;
+  
+  acts.forEach(act => {
+    if (act.activo !== false) {
+      totalActividades++;
+      if (act.tareaCompletada) {
+        actividadesCompletadas++;
+      }
+      
+      if (act.tareaActiva !== false) {
+        totalTareas++;
+        if (act.tareaCompletada) {
+          tareasCompletadas++;
+        }
+      }
+      
+      if (act.acciones && act.accionesActivas) {
+        act.accionesActivas.forEach((activa, idx) => {
+          if (activa) {
+            totalAcciones++;
+            if (act.accionesCompletadas && act.accionesCompletadas[idx]) {
+              accionesCompletadas++;
+            }
+          }
+        });
+      }
+    }
+  });
+  
+  return {
+    totalActividades,
+    actividadesCompletadas,
+    totalTareas,
+    tareasCompletadas,
+    totalAcciones,
+    accionesCompletadas,
+    porcentajeActividades: totalActividades > 0 ? Math.round((actividadesCompletadas / totalActividades) * 100) : 0,
+    porcentajeTareas: totalTareas > 0 ? Math.round((tareasCompletadas / totalTareas) * 100) : 0,
+    porcentajeAcciones: totalAcciones > 0 ? Math.round((accionesCompletadas / totalAcciones) * 100) : 0
+  };
+}
+
+// Función para mostrar estadísticas de completado en el modal
+function mostrarEstadisticasCompletado() {
+  if (!currentProgram) return;
+  
+  const stats = getEstadisticasCompletado(currentProgram);
+  const statsModal = document.getElementById('stats-modal');
+  const modalContent = statsModal.querySelector('.modal-content');
+  
+  // Crear contenido de estadísticas de completado
+  const statsContent = `
+    <div class="stats-completado">
+      <h3>📊 Progreso de Completado</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number">${stats.actividadesCompletadas}/${stats.totalActividades}</div>
+          <div class="stat-label">Actividades</div>
+          <div class="stat-bar">
+            <div class="stat-progress" style="width: ${stats.porcentajeActividades}%"></div>
+          </div>
+          <div class="stat-percentage">${stats.porcentajeActividades}%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">${stats.tareasCompletadas}/${stats.totalTareas}</div>
+          <div class="stat-label">Tareas</div>
+          <div class="stat-bar">
+            <div class="stat-progress" style="width: ${stats.porcentajeTareas}%"></div>
+          </div>
+          <div class="stat-percentage">${stats.porcentajeTareas}%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">${stats.accionesCompletadas}/${stats.totalAcciones}</div>
+          <div class="stat-label">Acciones</div>
+          <div class="stat-bar">
+            <div class="stat-progress" style="width: ${stats.porcentajeAcciones}%"></div>
+          </div>
+          <div class="stat-percentage">${stats.porcentajeAcciones}%</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Agregar el contenido al modal existente
+  const existingStats = modalContent.querySelector('.stats-completado');
+  if (existingStats) {
+    existingStats.remove();
+  }
+  modalContent.insertAdjacentHTML('beforeend', statsContent);
+  
+  statsModal.style.display = 'flex';
 } 
