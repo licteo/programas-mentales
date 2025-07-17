@@ -21,43 +21,40 @@
       <button id="achievements-btn" title="Ver logros" style="font-size:1.3em;">🥇</button>
       <button id="stats-btn">Estadísticas</button>
       <button id="test-alarm-btn" title="Probar alarma" style="background: #ff9800; color: white; border: none; border-radius: 0.4rem; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 0.9rem;">🔔 Probar</button>
+      <button id="test-sounds-btn" title="Probar sonidos" style="background: #17a2b8; color: white; border: none; border-radius: 0.4rem; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 0.9rem;">🔊 Sonidos</button>
       <button id="darkmode-btn">Modo oscuro</button>
       <button id="export-all-pdf">Exportar todo a PDF</button>
     </div>
   </header>
   <main id="main-content">
     <section class="programs-grid">
-      <div class="program-card espiritual" data-programa="espiritual">
-        <i class="fas fa-star"></i>
-        <span>Programa Espiritual</span>
+      <div class="program-card casa" data-programa="casa">
+        <i class="fas fa-home"></i>
+        <span>1. Programa Casa (Domingo)</span>
       </div>
       <div class="program-card cuerpo" data-programa="cuerpo">
         <i class="fas fa-heartbeat"></i>
-        <span>Programa Cuerpo</span>
-      </div>
-      <div class="program-card familia" data-programa="familia">
-        <i class="fas fa-users"></i>
-        <span>Programa Familia</span>
-      </div>
-      <div class="program-card trabajo" data-programa="trabajo">
-        <i class="fas fa-briefcase"></i>
-        <span>Programa Trabajo</span>
+        <span>2. Programa Cuerpo (Lunes)</span>
       </div>
       <div class="program-card estudio" data-programa="estudio">
         <i class="fas fa-book"></i>
-        <span>Programa Estudio</span>
+        <span>3. Programa Estudio (Martes)</span>
+      </div>
+      <div class="program-card familia" data-programa="familia">
+        <i class="fas fa-users"></i>
+        <span>4. Programa Familia (Miércoles)</span>
+      </div>
+      <div class="program-card trabajo" data-programa="trabajo">
+        <i class="fas fa-briefcase"></i>
+        <span>5. Programa Trabajo (Jueves)</span>
       </div>
       <div class="program-card recreacion" data-programa="recreacion">
         <i class="fas fa-futbol"></i>
-        <span>Programa Recreación</span>
+        <span>6. Programa Recreación (Viernes)</span>
       </div>
-      <div class="program-card casa" data-programa="casa">
-        <i class="fas fa-home"></i>
-        <span>Programa Casa</span>
-      </div>
-      <div class="program-card social" data-programa="social">
-        <i class="fas fa-comments"></i>
-        <span>Programa Social</span>
+      <div class="program-card espiritual" data-programa="espiritual">
+        <i class="fas fa-star"></i>
+        <span>7. Programa Espiritual (Sábado)</span>
       </div>
     </section>
     <section id="program-detail" class="hidden">
@@ -114,6 +111,28 @@
       <span class="close" id="close-achievements">&times;</span>
       <h2>Logros y puntos</h2>
       <div id="achievements-list"></div>
+    </div>
+  </div>
+  <div id="test-sounds-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" id="close-test-sounds">&times;</span>
+      <h2>🔊 Probar Sonidos del Sistema</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+        <button class="sound-test-btn" data-sound="default">🔔 Sonido por defecto</button>
+        <button class="sound-test-btn" data-sound="notification">📢 Notificación</button>
+        <button class="sound-test-btn" data-sound="alarm">🚨 Alarma</button>
+        <button class="sound-test-btn" data-sound="bell">🔔 Campana</button>
+        <button class="sound-test-btn" data-sound="chime">🎵 Carillón</button>
+        <button class="sound-test-btn" data-sound="ding">💫 Ding</button>
+        <button class="sound-test-btn" data-sound="ping">📡 Ping</button>
+        <button class="sound-test-btn" data-sound="pop">💭 Pop</button>
+        <button class="sound-test-btn" data-sound="success">✅ Éxito</button>
+        <button class="sound-test-btn" data-sound="warning">⚠️ Advertencia</button>
+      </div>
+      <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem;">
+        <h3>💡 Información</h3>
+        <p>Estos son los sonidos disponibles para tus recordatorios. Puedes probarlos aquí y luego seleccionar el que prefieras al programar un recordatorio.</p>
+      </div>
     </div>
   </div>
   <script src="main.js"></script>

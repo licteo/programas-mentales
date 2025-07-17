@@ -43,20 +43,20 @@ header > div {
   margin-bottom: 0.8rem;
   filter: drop-shadow(0 2px 6px rgba(108,99,255,0.10));
 }
-.program-card.espiritual { background: #a084e8; color: #fff; }
-.program-card.espiritual i { color: #fffbe7; }
-.program-card.cuerpo { background: #4caf50; color: #fff; }
-.program-card.cuerpo i { color: #eaffea; }
-.program-card.familia { background: #ff9800; color: #fff; }
-.program-card.familia i { color: #fff3e0; }
+.program-card.espiritual { background: #fff; color: #23234a; }
+.program-card.espiritual i { color: #a084e8; }
+.program-card.cuerpo { background: #ff9800; color: #fff; }
+.program-card.cuerpo i { color: #fff3e0; }
+.program-card.familia { background: #4caf50; color: #fff; }
+.program-card.familia i { color: #eaffea; }
 .program-card.trabajo { background: #2196f3; color: #fff; }
 .program-card.trabajo i { color: #e3f2fd; }
-.program-card.estudio { background: #ffd600; color: #222; }
+.program-card.estudio { background: #ffd600; color: #23234a; }
 .program-card.estudio i { color: #fffde7; }
-.program-card.recreacion { background: #e53935; color: #fff; }
-.program-card.recreacion i { color: #ffebee; }
-.program-card.casa { background: #8d6e63; color: #fff; }
-.program-card.casa i { color: #efebe9; }
+.program-card.recreacion { background: #3f51b5; color: #fff; }
+.program-card.recreacion i { color: #c5cae9; }
+.program-card.casa { background: #e53935; color: #fff; }
+.program-card.casa i { color: #ffebee; }
 .program-card.social { background: #00bcd4; color: #fff; }
 .program-card.social i { color: #e0f7fa; }
 .program-card:hover {
@@ -1134,5 +1134,198 @@ input:checked + .toggle-slider:before {
   
   .recordatorio-icon {
     font-size: 1.5rem;
+  }
+}
+
+/* Estilos para el formulario de recordatorios con sonidos */
+.recordatorio-form-container {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.recordatorio-form-container input[type="datetime-local"],
+.recordatorio-form-container select {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.4rem;
+  border-radius: 0.3rem;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 0.9rem;
+}
+
+.recordatorio-form-container button {
+  margin-right: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.3rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.recordatorio-form-container button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn-test-sound {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-test-sound:hover {
+  background: #138496;
+}
+
+.btn-save-reminder {
+  background: #28a745;
+  color: white;
+}
+
+.btn-save-reminder:hover {
+  background: #218838;
+}
+
+.btn-cancel-reminder {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-cancel-reminder:hover {
+  background: #c82333;
+}
+
+/* Estilos para la información del recordatorio */
+.reminder-info {
+  background: #e8f5e8;
+  border: 1px solid #c3e6c3;
+  border-radius: 0.3rem;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.reminder-info .reminder-title {
+  font-weight: bold;
+  color: #2e7d32;
+  margin-bottom: 0.3rem;
+}
+
+.reminder-info .reminder-details {
+  color: #555;
+  margin-bottom: 0.2rem;
+}
+
+.reminder-info .reminder-sound {
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.btn-cancel-reminder-info {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s ease;
+}
+
+.btn-cancel-reminder-info:hover {
+  background: #c82333;
+}
+
+/* Modo oscuro para recordatorios */
+.dark-mode .recordatorio-form-container {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+
+.dark-mode .recordatorio-form-container input[type="datetime-local"],
+.dark-mode .recordatorio-form-container select {
+  background-color: #4a5568;
+  border-color: #718096;
+  color: #e2e8f0;
+}
+
+.dark-mode .reminder-info {
+  background: #2d5016;
+  border-color: #4a7c59;
+}
+
+.dark-mode .reminder-info .reminder-title {
+  color: #68d391;
+}
+
+.dark-mode .reminder-info .reminder-details,
+.dark-mode .reminder-info .reminder-sound {
+  color: #cbd5e0;
+}
+
+/* Responsive para recordatorios */
+@media (max-width: 600px) {
+  .recordatorio-form-container {
+    padding: 0.8rem;
+  }
+  
+  .recordatorio-form-container input[type="datetime-local"],
+  .recordatorio-form-container select,
+  .recordatorio-form-container button {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .recordatorio-form-container button:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* Estilos para los botones de prueba de sonidos */
+.sound-test-btn {
+  background: linear-gradient(135deg, #6c63ff 0%, #a084e8 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(108,99,255,0.2);
+}
+
+.sound-test-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(108,99,255,0.3);
+  background: linear-gradient(135deg, #a084e8 0%, #6c63ff 100%);
+}
+
+.sound-test-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(108,99,255,0.2);
+}
+
+/* Modo oscuro para botones de sonido */
+.dark-mode .sound-test-btn {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.dark-mode .sound-test-btn:hover {
+  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* Responsive para botones de sonido */
+@media (max-width: 600px) {
+  .sound-test-btn {
+    padding: 0.8rem;
+    font-size: 0.9rem;
   }
 } 

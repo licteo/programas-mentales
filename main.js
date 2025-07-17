@@ -473,7 +473,35 @@ function renderActividades(program) {
       const infoDiv = actDiv.querySelector(`#recordatorio-info-${idx}`);
       if (infoDiv) {
         const fecha = new Date(parseInt(fechaHora));
-        infoDiv.textContent = `Recordatorio programado para: ${fecha.toLocaleString()}`;
+        const sonidoKey = `recordatorio_sonido_${program}_${idx}`;
+        const tipoSonido = localStorage.getItem(sonidoKey) || 'default';
+        
+        // Mapear el tipo de sonido a un emoji descriptivo
+        const sonidoEmoji = {
+          'default': '🔔',
+          'notification': '📢',
+          'alarm': '🚨',
+          'bell': '🔔',
+          'chime': '🎵',
+          'ding': '💫',
+          'ping': '📡',
+          'pop': '💭',
+          'success': '✅',
+          'warning': '⚠️'
+        };
+        
+        const emoji = sonidoEmoji[tipoSonido] || '🔔';
+        infoDiv.innerHTML = `
+          <div class="reminder-info">
+            <div class="reminder-title">⏰ Recordatorio programado</div>
+            <div class="reminder-details">Fecha: ${fecha.toLocaleString()}</div>
+            <div class="reminder-sound">Sonido: ${emoji} ${tipoSonido === 'default' ? 'Sonido por defecto' : tipoSonido}</div>
+            <button onclick="cancelarRecordatorio('${program}', ${idx}); renderActividades('${program}');" 
+                    class="btn-cancel-reminder-info">
+              ❌ Cancelar recordatorio
+            </button>
+          </div>
+        `;
       }
     }
   });
@@ -603,30 +631,95 @@ function renderActividades(program) {
     btn.onclick = () => {
       solicitarPermisoNotificaciones();
       const idx = parseInt(btn.dataset.idx);
+      
+      // Crear contenedor para el formulario de recordatorio
+      const formContainer = document.createElement('div');
+      formContainer.className = 'recordatorio-form-container';
+      
+      // Input para fecha y hora
       const fechaInput = document.createElement('input');
       fechaInput.type = 'datetime-local';
       fechaInput.style.marginRight = '0.5rem';
+      fechaInput.style.marginBottom = '0.5rem';
+      fechaInput.style.padding = '0.4rem';
+      fechaInput.style.borderRadius = '0.3rem';
+      fechaInput.style.border = '1px solid #ccc';
+      
+      // Selector de sonido
+      const soundSelect = document.createElement('select');
+      soundSelect.style.marginRight = '0.5rem';
+      soundSelect.style.marginBottom = '0.5rem';
+      soundSelect.style.padding = '0.4rem';
+      soundSelect.style.borderRadius = '0.3rem';
+      soundSelect.style.border = '1px solid #ccc';
+      soundSelect.style.backgroundColor = '#fff';
+      
+      // Opciones de sonidos del sistema
+      const soundOptions = [
+        { value: 'default', text: '🔔 Sonido por defecto' },
+        { value: 'notification', text: '📢 Notificación' },
+        { value: 'alarm', text: '🚨 Alarma' },
+        { value: 'bell', text: '🔔 Campana' },
+        { value: 'chime', text: '🎵 Carillón' },
+        { value: 'ding', text: '💫 Ding' },
+        { value: 'ping', text: '📡 Ping' },
+        { value: 'pop', text: '💭 Pop' },
+        { value: 'success', text: '✅ Éxito' },
+        { value: 'warning', text: '⚠️ Advertencia' }
+      ];
+      
+      soundOptions.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.text;
+        soundSelect.appendChild(optionElement);
+      });
+      
+      // Botón para probar sonido
+      const testSoundBtn = document.createElement('button');
+      testSoundBtn.textContent = '🔊 Probar';
+      testSoundBtn.type = 'button';
+      testSoundBtn.className = 'btn-test-sound';
+      
+      testSoundBtn.onclick = () => {
+        reproducirSonidoSistema(soundSelect.value);
+      };
+      
+      // Botones de acción
       const guardarBtn = document.createElement('button');
-      guardarBtn.textContent = 'Guardar';
+      guardarBtn.textContent = '💾 Guardar';
       guardarBtn.type = 'button';
+      guardarBtn.className = 'btn-save-reminder';
+      
+      const cancelarBtn = document.createElement('button');
+      cancelarBtn.textContent = '❌ Cancelar';
+      cancelarBtn.type = 'button';
+      cancelarBtn.className = 'btn-cancel-reminder';
+      
       guardarBtn.onclick = () => {
         const fechaHora = new Date(fechaInput.value).getTime();
+        const sonidoSeleccionado = soundSelect.value;
+        
         if (!isNaN(fechaHora) && fechaHora > Date.now()) {
-          programarRecordatorio(program, idx, acts[idx].actividad, fechaHora);
+          programarRecordatorio(program, idx, acts[idx].actividad, fechaHora, sonidoSeleccionado);
           renderActividades(program);
         } else {
           alert('Selecciona una fecha y hora válida en el futuro.');
         }
       };
-      const cancelarBtn = document.createElement('button');
-      cancelarBtn.textContent = 'Cancelar';
-      cancelarBtn.type = 'button';
+      
       cancelarBtn.onclick = () => renderActividades(program);
+      
+      // Agregar elementos al contenedor
+      formContainer.appendChild(fechaInput);
+      formContainer.appendChild(soundSelect);
+      formContainer.appendChild(testSoundBtn);
+      formContainer.appendChild(guardarBtn);
+      formContainer.appendChild(cancelarBtn);
+      
       const contenedor = btn.parentElement.parentElement;
       contenedor.querySelector('.recordatorio-info').innerHTML = '';
-      contenedor.querySelector('.recordatorio-info').appendChild(fechaInput);
-      contenedor.querySelector('.recordatorio-info').appendChild(guardarBtn);
-      contenedor.querySelector('.recordatorio-info').appendChild(cancelarBtn);
+      contenedor.querySelector('.recordatorio-info').appendChild(formContainer);
     };
   });
   programActivities.querySelectorAll('.btn-historial').forEach(btn => {
@@ -975,10 +1068,181 @@ function reproducirAlarma() {
   }
 }
 
+// Función para reproducir sonidos del sistema
+function reproducirSonidoSistema(tipoSonido) {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    const now = audioContext.currentTime;
+    
+    // Configurar diferentes sonidos según el tipo
+    switch (tipoSonido) {
+      case 'notification':
+        // Sonido de notificación suave
+        oscillator.frequency.setValueAtTime(523, now); // Do
+        oscillator.frequency.setValueAtTime(659, now + 0.1); // Mi
+        oscillator.frequency.setValueAtTime(784, now + 0.2); // Sol
+        gainNode.gain.setValueAtTime(0.2, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        oscillator.start(now);
+        oscillator.stop(now + 0.3);
+        break;
+        
+      case 'alarm':
+        // Sonido de alarma fuerte y repetitivo
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            const time = audioContext.currentTime;
+            osc.frequency.setValueAtTime(800, time);
+            osc.frequency.setValueAtTime(600, time + 0.1);
+            osc.frequency.setValueAtTime(800, time + 0.2);
+            
+            gain.gain.setValueAtTime(0.4, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+            
+            osc.start(time);
+            osc.stop(time + 0.3);
+          }, i * 400);
+        }
+        break;
+        
+      case 'bell':
+        // Sonido de campana
+        oscillator.frequency.setValueAtTime(800, now);
+        oscillator.frequency.setValueAtTime(600, now + 0.05);
+        oscillator.frequency.setValueAtTime(800, now + 0.1);
+        oscillator.frequency.setValueAtTime(600, now + 0.15);
+        oscillator.frequency.setValueAtTime(800, now + 0.2);
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        oscillator.start(now);
+        oscillator.stop(now + 0.5);
+        break;
+        
+      case 'chime':
+        // Sonido de carillón
+        const notes = [523, 659, 784, 1047]; // Do, Mi, Sol, Do alto
+        notes.forEach((freq, index) => {
+          setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            const time = audioContext.currentTime;
+            osc.frequency.setValueAtTime(freq, time);
+            gain.gain.setValueAtTime(0.2, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+            
+            osc.start(time);
+            osc.stop(time + 0.3);
+          }, index * 150);
+        });
+        break;
+        
+      case 'ding':
+        // Sonido de ding simple
+        oscillator.frequency.setValueAtTime(800, now);
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        oscillator.start(now);
+        oscillator.stop(now + 0.2);
+        break;
+        
+      case 'ping':
+        // Sonido de ping electrónico
+        oscillator.frequency.setValueAtTime(1000, now);
+        oscillator.frequency.setValueAtTime(800, now + 0.05);
+        oscillator.frequency.setValueAtTime(600, now + 0.1);
+        gainNode.gain.setValueAtTime(0.25, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        oscillator.start(now);
+        oscillator.stop(now + 0.15);
+        break;
+        
+      case 'pop':
+        // Sonido de pop suave
+        oscillator.frequency.setValueAtTime(400, now);
+        oscillator.frequency.setValueAtTime(600, now + 0.05);
+        gainNode.gain.setValueAtTime(0.2, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        oscillator.start(now);
+        oscillator.stop(now + 0.1);
+        break;
+        
+      case 'success':
+        // Sonido de éxito
+        const successNotes = [523, 659, 784]; // Do, Mi, Sol
+        successNotes.forEach((freq, index) => {
+          setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            const time = audioContext.currentTime;
+            osc.frequency.setValueAtTime(freq, time);
+            gain.gain.setValueAtTime(0.25, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+            
+            osc.start(time);
+            osc.stop(time + 0.2);
+          }, index * 100);
+        });
+        break;
+        
+      case 'warning':
+        // Sonido de advertencia
+        for (let i = 0; i < 2; i++) {
+          setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            const time = audioContext.currentTime;
+            osc.frequency.setValueAtTime(600, time);
+            osc.frequency.setValueAtTime(400, time + 0.1);
+            
+            gain.gain.setValueAtTime(0.3, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+            
+            osc.start(time);
+            osc.stop(time + 0.2);
+          }, i * 300);
+        }
+        break;
+        
+      default:
+        // Sonido por defecto (el mismo que la alarma original)
+        reproducirAlarma();
+        break;
+    }
+    
+  } catch (error) {
+    console.log('Error reproduciendo sonido del sistema:', error);
+    // Fallback: usar el sonido por defecto
+    reproducirAlarma();
+  }
+}
+
 // Función para programar recordatorio
-function programarRecordatorio(program, idx, actividad, fechaHora) {
+function programarRecordatorio(program, idx, actividad, fechaHora, tipoSonido = 'default') {
   const key = `recordatorio_${program}_${idx}`;
+  const sonidoKey = `recordatorio_sonido_${program}_${idx}`;
+  
   localStorage.setItem(key, fechaHora);
+  localStorage.setItem(sonidoKey, tipoSonido);
   
   // Calcular tiempo hasta el recordatorio
   const tiempoHastaRecordatorio = fechaHora - Date.now();
@@ -986,23 +1250,23 @@ function programarRecordatorio(program, idx, actividad, fechaHora) {
   if (tiempoHastaRecordatorio > 0) {
     // Programar el recordatorio
     const timeoutId = setTimeout(() => {
-      mostrarRecordatorio(program, idx, actividad);
+      mostrarRecordatorio(program, idx, actividad, tipoSonido);
     }, tiempoHastaRecordatorio);
     
     // Guardar el timeout ID para poder cancelarlo
     recordatoriosActivos.set(key, timeoutId);
     
-    console.log(`Recordatorio programado para: ${new Date(fechaHora).toLocaleString()}`);
+    console.log(`Recordatorio programado para: ${new Date(fechaHora).toLocaleString()} con sonido: ${tipoSonido}`);
   } else {
     // Si la fecha ya pasó, mostrar inmediatamente
-    mostrarRecordatorio(program, idx, actividad);
+    mostrarRecordatorio(program, idx, actividad, tipoSonido);
   }
 }
 
 // Función para mostrar recordatorio
-function mostrarRecordatorio(program, idx, actividad) {
-  // Reproducir alarma
-  reproducirAlarma();
+function mostrarRecordatorio(program, idx, actividad, tipoSonido = 'default') {
+  // Reproducir sonido específico
+  reproducirSonidoSistema(tipoSonido);
   
   // Mostrar notificación del navegador
   if ('Notification' in window && Notification.permission === 'granted') {
@@ -1041,16 +1305,18 @@ function mostrarRecordatorio(program, idx, actividad) {
   const mensaje = `⏰ ¡Recordatorio!\n\nPrograma: ${nombres[program]}\nActividad: ${actividad}\n\n¡Es hora de realizar esta actividad!`;
   
   // Crear modal de recordatorio personalizado
-  mostrarModalRecordatorio(mensaje, program, idx);
+  mostrarModalRecordatorio(mensaje, program, idx, tipoSonido);
   
   // Limpiar el recordatorio
   const key = `recordatorio_${program}_${idx}`;
+  const sonidoKey = `recordatorio_sonido_${program}_${idx}`;
   localStorage.removeItem(key);
+  localStorage.removeItem(sonidoKey);
   recordatoriosActivos.delete(key);
 }
 
 // Función para mostrar modal de recordatorio
-function mostrarModalRecordatorio(mensaje, program, idx) {
+function mostrarModalRecordatorio(mensaje, program, idx, tipoSonido = 'default') {
   // Crear modal si no existe
   let modalRecordatorio = document.getElementById('modal-recordatorio');
   if (!modalRecordatorio) {
@@ -1108,7 +1374,10 @@ function mostrarModalRecordatorio(mensaje, program, idx) {
 // Función para cancelar recordatorio
 function cancelarRecordatorio(program, idx) {
   const key = `recordatorio_${program}_${idx}`;
+  const sonidoKey = `recordatorio_sonido_${program}_${idx}`;
+  
   localStorage.removeItem(key);
+  localStorage.removeItem(sonidoKey);
   
   // Cancelar el timeout si existe
   const timeoutId = recordatoriosActivos.get(key);
@@ -1123,7 +1392,7 @@ function revisarRecordatorios() {
   const ahora = Date.now();
   for (let i = 0; i < localStorage.length; i++) {
     const clave = localStorage.key(i);
-    if (clave && clave.startsWith('recordatorio_')) {
+    if (clave && clave.startsWith('recordatorio_') && !clave.includes('sonido')) {
       const fechaHora = parseInt(localStorage.getItem(clave));
       if (!isNaN(fechaHora) && fechaHora <= ahora) {
         // Obtener info de la actividad
@@ -1131,8 +1400,13 @@ function revisarRecordatorios() {
         const program = partes[1];
         const idx = parseInt(partes[2]);
         const acts = getActividades(program);
+        
+        // Obtener el tipo de sonido guardado
+        const sonidoKey = `recordatorio_sonido_${program}_${idx}`;
+        const tipoSonido = localStorage.getItem(sonidoKey) || 'default';
+        
         if (acts[idx]) {
-          mostrarRecordatorio(program, idx, acts[idx].actividad);
+          mostrarRecordatorio(program, idx, acts[idx].actividad, tipoSonido);
         }
       }
     }
@@ -1825,9 +2099,9 @@ if (notesTagsInput) {
 }
 // 4. Programar recordatorio
 const originalProgramarRecordatorio = programarRecordatorio;
-programarRecordatorio = function(program, idx, actividad, fechaHora) {
+programarRecordatorio = function(program, idx, actividad, fechaHora, tipoSonido = 'default') {
   unlockAchievement('recordatorio');
-  originalProgramarRecordatorio(program, idx, actividad, fechaHora);
+  originalProgramarRecordatorio(program, idx, actividad, fechaHora, tipoSonido);
 };
 // 5. Exportar PDF
 if (exportAllPdfBtn) {
@@ -1955,4 +2229,39 @@ function mostrarEstadisticasCompletado() {
   modalContent.insertAdjacentHTML('beforeend', statsContent);
   
   statsModal.style.display = 'flex';
+}
+
+// --- Modal de prueba de sonidos ---
+const testSoundsBtn = document.getElementById('test-sounds-btn');
+const testSoundsModal = document.getElementById('test-sounds-modal');
+const closeTestSounds = document.getElementById('close-test-sounds');
+
+if (testSoundsBtn && testSoundsModal && closeTestSounds) {
+  testSoundsBtn.onclick = function() {
+    testSoundsModal.style.display = 'flex';
+  };
+  
+  closeTestSounds.onclick = function() {
+    testSoundsModal.style.display = 'none';
+  };
+  
+  window.onclick = function(event) {
+    if (event.target === testSoundsModal) {
+      testSoundsModal.style.display = 'none';
+    }
+  };
+  
+  // Event listeners para los botones de prueba de sonidos
+  document.querySelectorAll('.sound-test-btn').forEach(btn => {
+    btn.onclick = function() {
+      const soundType = this.dataset.sound;
+      reproducirSonidoSistema(soundType);
+      
+      // Efecto visual de feedback
+      this.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        this.style.transform = '';
+      }, 150);
+    };
+  });
 } 
