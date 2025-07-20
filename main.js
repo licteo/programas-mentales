@@ -420,7 +420,61 @@ function showProgramDetail(program) {
   programTitle.textContent = nombres[program];
   initSummernote();
   if (summernoteInitialized) {
-    const saved = localStorage.getItem('notas_' + program) || '';
+    let saved = localStorage.getItem('notas_' + program) || '';
+    // Si es el programa 'cuerpo' y no hay tabla, agregar la tabla de chakras automáticamente
+    if (program === 'cuerpo' && !saved.includes('<table')) {
+      saved = `<table style="width:100%; text-align:center; border-collapse:collapse;">
+  <tr>
+    <th>Día</th>
+    <th>Desayuno</th>
+    <th>Almuerzo</th>
+    <th>Cena</th>
+  </tr>
+  <tr>
+    <td style="background:#e53935; color:white; font-weight:bold;">Domingo<br><small>Rojo (Raíz)</small></td>
+    <td>Fresas, sandía, jugo de tomate</td>
+    <td>Lasaña de carne, ensalada de pimientos rojos</td>
+    <td>Sopa de remolacha, manzana roja</td>
+  </tr>
+  <tr>
+    <td style="background:#ff9800; color:white; font-weight:bold;">Lunes<br><small>Naranja (Sacro)</small></td>
+    <td>Jugo de naranja, melón, papaya</td>
+    <td>Arroz con zanahoria y calabaza, pollo al curry</td>
+    <td>Crema de calabaza, batata asada</td>
+  </tr>
+  <tr>
+    <td style="background:#ffd600; color:#23234a; font-weight:bold;">Martes<br><small>Amarillo (Plexo solar)</small></td>
+    <td>Piña, plátano, té de manzanilla</td>
+    <td>Pechuga de pollo con maíz y pimientos amarillos</td>
+    <td>Omelette de queso y maíz, mango</td>
+  </tr>
+  <tr>
+    <td style="background:#4caf50; color:white; font-weight:bold;">Miércoles<br><small>Verde (Corazón)</small></td>
+    <td>Batido de espinaca y manzana verde</td>
+    <td>Ensalada de aguacate, brócoli y pepino</td>
+    <td>Crema de calabacín, uvas verdes</td>
+  </tr>
+  <tr>
+    <td style="background:#2196f3; color:white; font-weight:bold;">Jueves<br><small>Azul (Garganta)</small></td>
+    <td>Arándanos, yogur natural</td>
+    <td>Pescado al vapor con col morada y cebolla morada</td>
+    <td>Queso azul, batido de moras</td>
+  </tr>
+  <tr>
+    <td style="background:#3f51b5; color:white; font-weight:bold;">Viernes<br><small>Índigo (Tercer ojo)</small></td>
+    <td>Uvas moradas, ciruelas</td>
+    <td>Ensalada de berenjena y cebolla morada</td>
+    <td>Crema de col lombarda, jugo de uva</td>
+  </tr>
+  <tr>
+    <td style="background:#a084e8; color:white; font-weight:bold;">Sábado<br><small>Violeta (Corona)</small></td>
+    <td>Batido de mora y arándanos</td>
+    <td>Arroz integral con remolacha y col morada</td>
+    <td>Ensalada de repollo morado, uvas negras</td>
+  </tr>
+</table>`;
+      localStorage.setItem('notas_' + program, saved);
+    }
     $('#program-notes').summernote('code', saved);
   }
   // Mostrar etiquetas de notas
