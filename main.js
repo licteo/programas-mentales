@@ -21,6 +21,9 @@ if (!programActivities) {
 
 let currentProgram = null;
 let quill = null;
+let ckeditorInstance = null;
+let tinymceInstance = null;
+let summernoteInitialized = false;
 
 const defaultActividades = {
   espiritual: [
@@ -335,34 +338,90 @@ if (programNotesDiv) {
   });
 }
 
-function initQuill() {
-  if (quill) return;
-  quill = new Quill('#program-notes', {
-    modules: {
-      toolbar: [
-        [{ 'header': [1, 2, false] }],
-        ['bold', 'italic', 'underline'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'indent': '-1'}, { 'indent': '+1' }],
-        ['clean']
-      ]
+function initCKEditor() {
+  if (ckeditorInstance) return;
+  const notesDiv = document.getElementById('program-notes');
+  ClassicEditor.create(notesDiv, {
+    toolbar: [
+      'heading', '|', 'bold', 'italic', 'underline', 'bulletedList', 'numberedList', 'insertTable', '|', 'undo', 'redo', '|', 'sourceEditing'
+    ],
+    table: {
+      contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
     },
-    theme: 'snow',
-    placeholder: 'Escribe tus notas aquí...'
-  });
-  quill.on('text-change', function() {
+    language: 'es'
+  }).then(editor => {
+    ckeditorInstance = editor;
     if (currentProgram) {
-      localStorage.setItem('notas_' + currentProgram, quill.root.innerHTML);
+      const saved = localStorage.getItem('notas_' + currentProgram) || '';
+      editor.setData(saved);
+    }
+    editor.model.document.on('change:data', () => {
+      if (currentProgram) {
+        localStorage.setItem('notas_' + currentProgram, editor.getData());
+      }
+    });
+  });
+}
+
+function initTinyMCE() {
+  if (tinymceInstance) return;
+  tinymce.init({
+    selector: '#program-notes',
+    height: 180,
+    menubar: true,
+    plugins: 'code table lists',
+    toolbar: 'undo redo | bold italic underline | bullist numlist | table | code',
+    language: 'es',
+    setup: function(editor) {
+      tinymceInstance = editor;
+      editor.on('init', function() {
+        if (currentProgram) {
+          const saved = localStorage.getItem('notas_' + currentProgram) || '';
+          editor.setContent(saved);
+        }
+      });
+      editor.on('change keyup', function() {
+        if (currentProgram) {
+          localStorage.setItem('notas_' + currentProgram, editor.getContent());
+        }
+      });
     }
   });
 }
 
+function initSummernote() {
+  if (summernoteInitialized) return;
+  $('#program-notes').summernote({
+    height: 180,
+    lang: 'es-ES',
+    toolbar: [
+      ['style', ['bold', 'italic', 'underline', 'clear']],
+      ['font', ['strikethrough', 'superscript', 'subscript']],
+      ['para', ['ul', 'ol', 'paragraph']],
+      ['table', ['table']],
+      ['insert', ['link', 'picture', 'video']],
+      ['view', ['codeview', 'undo', 'redo']]
+    ]
+  });
+  summernoteInitialized = true;
+  if (currentProgram) {
+    const saved = localStorage.getItem('notas_' + currentProgram) || '';
+    $('#program-notes').summernote('code', saved);
+  }
+  $('#program-notes').on('summernote.change', function() {
+    if (currentProgram) {
+      localStorage.setItem('notas_' + currentProgram, $('#program-notes').summernote('code'));
+    }
+  });
+}
+
+// Reemplazar initQuill() por initCKEditor() en showProgramDetail
 function showProgramDetail(program) {
   programTitle.textContent = nombres[program];
-  initQuill();
-  if (quill) {
+  initSummernote();
+  if (summernoteInitialized) {
     const saved = localStorage.getItem('notas_' + program) || '';
-    quill.root.innerHTML = saved;
+    $('#program-notes').summernote('code', saved);
   }
   // Mostrar etiquetas de notas
   if (notesTagsInput) {
@@ -791,7 +850,7 @@ function mostrarFormularioActividad(program, idx = null) {
     };
   }
 
-  // Crear formulario con Quill para tarea y acciones
+  // Crear formulario con campos de texto simples
   const formDiv = document.createElement('div');
   formDiv.className = 'actividad-bloque';
   formDiv.innerHTML = `
@@ -803,28 +862,22 @@ function mostrarFormularioActividad(program, idx = null) {
         </label>
         <label>Actividad:<br><input type="text" name="actividad" value="${act.actividad}" required></label>
       </div>
-      
       <div class="form-section">
         <label class="form-label">
           <input type="checkbox" name="tareaActiva" ${act.tareaActiva ? 'checked' : ''} style="margin-right: 0.5rem;">
           Tarea activa
         </label>
-        <label>Tarea:</label>
-        <div id="quill-tarea" style="height: 60px;"></div>
+        <label>Tarea:<br><textarea name="tarea" rows="2" style="width:100%;">${act.tarea ? act.tarea.replace(/<[^>]+>/g, '') : ''}</textarea></label>
       </div>
-      
       <div class="form-section">
-        <label>Acciones:</label>
-        <div id="quill-acciones" style="height: 90px;"></div>
+        <label>Acciones (una por línea):<br><textarea name="acciones" rows="3" style="width:100%;">${act.acciones ? act.acciones.join('\n').replace(/<[^>]+>/g, '') : ''}</textarea></label>
         <div class="acciones-activas-info">
           <small>Las acciones se activarán automáticamente. Puedes desactivarlas después de guardar.</small>
         </div>
       </div>
-      
       <div class="form-section">
         <label>Etiquetas:<br><input type="text" name="tags" value="${act.tags ? act.tags.join(', ') : ''}" placeholder="Etiquetas (separadas por coma)" style="width:100%; border-radius:0.4rem; border:1px solid #ccc; padding:0.4rem;" /></label>
       </div>
-      
       <div class="form-buttons">
         <button type="submit">${idx !== null ? 'Guardar cambios' : 'Agregar actividad'}</button>
         <button type="button" class="btn-cancelar">Cancelar</button>
@@ -834,69 +887,33 @@ function mostrarFormularioActividad(program, idx = null) {
   programActivities.innerHTML = '';
   programActivities.appendChild(formDiv);
 
-  // Inicializar Quill para tarea y acciones
-  const quillTarea = new Quill('#quill-tarea', {
-    theme: 'snow',
-    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'indent': '-1'}, { 'indent': '+1' }], ['clean']] },
-    placeholder: 'Describe la tarea...'
-  });
-  const quillAcciones = new Quill('#quill-acciones', {
-    theme: 'snow',
-    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'indent': '-1'}, { 'indent': '+1' }], ['clean']] },
-    placeholder: 'Lista de acciones...'
-  });
-  // Cargar valores si existen
-  if (act.tarea) quillTarea.root.innerHTML = act.tarea;
-  if (act.acciones && act.acciones.length) quillAcciones.root.innerHTML = act.acciones.join('<br>');
-
   // Cancelar
   formDiv.querySelector('.btn-cancelar').onclick = () => renderActividades(program);
 
   // Guardar
   formDiv.querySelector('form').onsubmit = e => {
     e.preventDefault();
-    
-    // Obtener el contenido de Quill y dividirlo en acciones individuales
-    const accionesHtml = quillAcciones.root.innerHTML;
-    const accionesArray = accionesHtml.split('<br>').filter(accion => accion.trim() !== '');
-    
+    // Obtener el contenido de los campos de texto
+    const accionesArray = formDiv.querySelector('textarea[name="acciones"]').value.split('\n').filter(accion => accion.trim() !== '');
     const nuevaActividad = {
       actividad: formDiv.querySelector('input[name="actividad"]').value,
-      tarea: quillTarea.root.innerHTML,
+      tarea: formDiv.querySelector('textarea[name="tarea"]').value,
       acciones: accionesArray,
       tags: getTagsFromString(formDiv.querySelector('input[name="tags"]').value),
       activo: formDiv.querySelector('input[name="activo"]').checked,
       tareaActiva: formDiv.querySelector('input[name="tareaActiva"]').checked,
-      accionesActivas: accionesArray.map(() => true), // Todas las acciones activas por defecto
-      tareaCompletada: false, // Nueva actividad no completada
-      accionesCompletadas: accionesArray.map(() => false), // Ninguna acción completada
-      fechaCompletado: null // Sin fecha de completado
+      accionesActivas: accionesArray.map(() => true),
+      tareaCompletada: false,
+      accionesCompletadas: accionesArray.map(() => false),
+      fechaCompletado: null
     };
-    
     if (idx !== null) {
-      // Preservar estados de activación y completado de acciones existentes si es posible
-      if (acts[idx].accionesActivas && acts[idx].accionesActivas.length === accionesArray.length) {
-        nuevaActividad.accionesActivas = acts[idx].accionesActivas;
-      }
-      if (acts[idx].accionesCompletadas && acts[idx].accionesCompletadas.length === accionesArray.length) {
-        nuevaActividad.accionesCompletadas = acts[idx].accionesCompletadas;
-      }
-      // Preservar estado de completado de tarea
-      nuevaActividad.tareaCompletada = acts[idx].tareaCompletada || false;
-      nuevaActividad.fechaCompletado = acts[idx].fechaCompletado || null;
-      
       acts[idx] = nuevaActividad;
-      setActividades(program, acts);
-      saveActividadHistory(program, idx, nuevaActividad);
-      renderActividades(program);
-      updateTagFilter();
     } else {
       acts.push(nuevaActividad);
-      setActividades(program, acts);
-      saveActividadHistory(program, acts.length - 1, nuevaActividad);
-      renderActividades(program);
-      updateTagFilter();
     }
+    setActividades(program, acts);
+    renderActividades(program);
   };
 }
 
@@ -1852,7 +1869,7 @@ function showNotesHistory(program) {
       div.innerHTML = `<b>${h.fecha}</b><br><div style='border:1px solid #ccc; border-radius:0.4em; padding:0.5em; margin:0.5em 0; max-height:80px; overflow:auto;'>${h.contenido}</div><button data-idx='${i}'>Restaurar</button>`;
       div.querySelector('button').onclick = function() {
         if (confirm('¿Restaurar esta versión?')) {
-          if (quill) quill.root.innerHTML = h.contenido;
+          if (ckeditorInstance) ckeditorInstance.setData(h.contenido);
           localStorage.setItem('notas_' + program, h.contenido);
           saveNotesHistory(program, h.contenido);
           showNotesHistory(program);
@@ -2085,7 +2102,7 @@ setActividades = function(program, acts) {
 if (programNotesDiv) {
   programNotesDiv.addEventListener('input', () => {
     if (currentProgram) {
-      if ((quill && quill.getText().trim().length > 0) || programNotesDiv.innerText.trim().length > 0) {
+      if ((ckeditorInstance && ckeditorInstance.getData().trim().length > 0) || programNotesDiv.innerText.trim().length > 0) {
         unlockAchievement('primer_nota');
       }
     }

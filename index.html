@@ -8,8 +8,10 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="icon.png">
   <script src="https://kit.fontawesome.com/4b8b59b5b2.js" crossorigin="anonymous"></script>
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <!-- Eliminar TinyMCE y agregar Summernote -->
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
 </head>
 <body>
   <header>
@@ -68,7 +70,7 @@
       </div>
       <h2 id="program-title"></h2>
       <div id="notes-toolbar"></div>
-      <div id="program-notes" style="height: 180px;"></div>
+      <textarea id="program-notes" style="height: 180px; width: 100%;"></textarea>
       <input id="notes-tags" type="text" placeholder="Etiquetas (separadas por coma)" style="margin-top:0.5rem; width:100%; border-radius:0.4rem; border:1px solid #ccc; padding:0.4rem;" />
       <div id="notes-tags-list" style="margin-bottom:1rem;"></div>
       <button id="notes-history-btn" style="margin-bottom:1rem;">Historial de notas</button>
