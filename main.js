@@ -512,21 +512,27 @@ function renderActividades(program) {
       <span class="toggle-slider"></span>
     </label>`;
     
-    const tareaToggle = `<label class="toggle-switch">
-      <input type="checkbox" ${act.tareaActiva ? 'checked' : ''} data-type="tarea" data-idx="${idx}">
-      <span class="toggle-slider"></span>
-    </label>`;
-    
-    // Crear checkbox para completado de tarea
-    const tareaCompletadaCheckbox = `<label class="completion-checkbox">
-      <input type="checkbox" ${act.tareaCompletada ? 'checked' : ''} data-type="tarea-completada" data-idx="${idx}">
-      <span class="checkmark"></span>
-    </label>`;
-    
-    // Crear toggles y checkboxes para cada acción
+    // Mostrar todas las tareas
+    const tareasToggles = act.tareas ? act.tareas.map((tarea, tareaIdx) => {
+      const isActive = act.tareasActivas && act.tareasActivas[tareaIdx] !== false;
+      const isCompleted = act.tareasCompletadas && act.tareasCompletadas[tareaIdx] === true;
+      return `<div class="tarea-item">
+        <label class="toggle-switch small">
+          <input type="checkbox" ${isActive ? 'checked' : ''} data-type="tarea" data-idx="${idx}" data-tarea-idx="${tareaIdx}">
+          <span class="toggle-slider"></span>
+        </label>
+        <label class="completion-checkbox small">
+          <input type="checkbox" ${isCompleted ? 'checked' : ''} data-type="tarea-completada" data-idx="${idx}" data-tarea-idx="${tareaIdx}">
+          <span class="checkmark"></span>
+        </label>
+        <span class="actividad-tarea ${isActive ? '' : 'inactivo'} ${isCompleted ? 'completada' : ''}">${tarea}</span>
+      </div>`;
+    }).join('') : '';
+
+    // Mostrar todas las acciones
     const accionesToggles = act.acciones ? act.acciones.map((accion, accionIdx) => {
-      const isActive = act.accionesActivas[accionIdx] !== false;
-      const isCompleted = act.accionesCompletadas[accionIdx] === true;
+      const isActive = act.accionesActivas && act.accionesActivas[accionIdx] !== false;
+      const isCompleted = act.accionesCompletadas && act.accionesCompletadas[accionIdx] === true;
       return `<div class="accion-item">
         <label class="toggle-switch small">
           <input type="checkbox" ${isActive ? 'checked' : ''} data-type="accion" data-idx="${idx}" data-accion-idx="${accionIdx}">
@@ -539,7 +545,7 @@ function renderActividades(program) {
         <span class="accion-texto ${isActive ? '' : 'inactivo'} ${isCompleted ? 'completada' : ''}">${accion}</span>
       </div>`;
     }).join('') : '';
-    
+
     // Mostrar fecha de completado si existe
     const fechaCompletadoInfo = act.fechaCompletado ? 
       `<div class="fecha-completado">✅ Completado el: ${new Date(act.fechaCompletado).toLocaleDateString()}</div>` : '';
@@ -553,11 +559,9 @@ function renderActividades(program) {
         </div>
       </div>
       <div class="tarea-section">
-        <div class="tarea-toggle">
-          ${tareaToggle}
-          <strong>Tarea:</strong> 
-          <span class="actividad-tarea ${act.tareaActiva ? '' : 'inactivo'} ${act.tareaCompletada ? 'completada' : ''}">${act.tarea}</span>
-          ${tareaCompletadaCheckbox}
+        <strong>Tareas:</strong>
+        <div class="actividad-tareas">
+          ${tareasToggles}
         </div>
       </div>
       <div class="acciones-section">
@@ -878,33 +882,34 @@ function renderActividades(program) {
 
 function mostrarFormularioActividad(program, idx = null) {
   const acts = getActividades(program);
-  let act = { 
-    actividad: '', 
-    tarea: '', 
-    acciones: [''], 
+  let act = {
+    actividad: '',
+    tareas: [''],
+    acciones: [''],
     tags: [],
     activo: true,
-    tareaActiva: true,
+    tareasActivas: [true],
     accionesActivas: [true],
-    tareaCompletada: false,
+    tareasCompletadas: [false],
     accionesCompletadas: [false],
     fechaCompletado: null
   };
   if (idx !== null) {
-    act = { 
-      ...acts[idx], 
-      acciones: [...acts[idx].acciones], 
+    act = {
+      ...acts[idx],
+      tareas: acts[idx].tareas || [acts[idx].tarea || ''],
+      acciones: [...acts[idx].acciones],
       tags: acts[idx].tags || [],
       activo: acts[idx].activo !== undefined ? acts[idx].activo : true,
-      tareaActiva: acts[idx].tareaActiva !== undefined ? acts[idx].tareaActiva : true,
+      tareasActivas: acts[idx].tareasActivas || [acts[idx].tareaActiva !== undefined ? acts[idx].tareaActiva : true],
       accionesActivas: acts[idx].accionesActivas || acts[idx].acciones.map(() => true),
-      tareaCompletada: acts[idx].tareaCompletada !== undefined ? acts[idx].tareaCompletada : false,
+      tareasCompletadas: acts[idx].tareasCompletadas || [acts[idx].tareaCompletada !== undefined ? acts[idx].tareaCompletada : false],
       accionesCompletadas: acts[idx].accionesCompletadas || acts[idx].acciones.map(() => false),
       fechaCompletado: acts[idx].fechaCompletado || null
     };
   }
 
-  // Crear formulario con campos de texto simples
+  // Crear formulario dinámico para varias tareas y acciones
   const formDiv = document.createElement('div');
   formDiv.className = 'actividad-bloque';
   formDiv.innerHTML = `
@@ -916,18 +921,25 @@ function mostrarFormularioActividad(program, idx = null) {
         </label>
         <label>Actividad:<br><input type="text" name="actividad" value="${act.actividad}" required></label>
       </div>
-      <div class="form-section">
-        <label class="form-label">
-          <input type="checkbox" name="tareaActiva" ${act.tareaActiva ? 'checked' : ''} style="margin-right: 0.5rem;">
-          Tarea activa
-        </label>
-        <label>Tarea:<br><textarea name="tarea" rows="2" style="width:100%;">${act.tarea ? act.tarea.replace(/<[^>]+>/g, '') : ''}</textarea></label>
+      <div class="form-section" id="tareas-section">
+        <label>Tareas:</label>
+        ${act.tareas.map((t, i) => `
+          <div class="tarea-item">
+            <textarea name="tarea" rows="2" style="width:90%;display:inline-block;">${t.replace(/<[^>]+>/g, '')}</textarea>
+            <button type="button" class="btn-eliminar-tarea" data-idx="${i}" style="display:inline-block;">🗑️</button>
+          </div>
+        `).join('')}
+        <button type="button" id="btn-agregar-tarea">+ Agregar tarea</button>
       </div>
-      <div class="form-section">
-        <label>Acciones (una por línea):<br><textarea name="acciones" rows="3" style="width:100%;">${act.acciones ? act.acciones.join('\n').replace(/<[^>]+>/g, '') : ''}</textarea></label>
-        <div class="acciones-activas-info">
-          <small>Las acciones se activarán automáticamente. Puedes desactivarlas después de guardar.</small>
-        </div>
+      <div class="form-section" id="acciones-section">
+        <label>Acciones:</label>
+        ${act.acciones.map((a, i) => `
+          <div class="accion-item">
+            <textarea name="accion" rows="2" style="width:90%;display:inline-block;">${a.replace(/<[^>]+>/g, '')}</textarea>
+            <button type="button" class="btn-eliminar-accion" data-idx="${i}" style="display:inline-block;">🗑️</button>
+          </div>
+        `).join('')}
+        <button type="button" id="btn-agregar-accion">+ Agregar acción</button>
       </div>
       <div class="form-section">
         <label>Etiquetas:<br><input type="text" name="tags" value="${act.tags ? act.tags.join(', ') : ''}" placeholder="Etiquetas (separadas por coma)" style="width:100%; border-radius:0.4rem; border:1px solid #ccc; padding:0.4rem;" /></label>
@@ -941,23 +953,50 @@ function mostrarFormularioActividad(program, idx = null) {
   programActivities.innerHTML = '';
   programActivities.appendChild(formDiv);
 
+  // Lógica para agregar/eliminar tareas y acciones dinámicamente
+  const tareasSection = formDiv.querySelector('#tareas-section');
+  const accionesSection = formDiv.querySelector('#acciones-section');
+
+  tareasSection.querySelector('#btn-agregar-tarea').onclick = () => {
+    const nuevaTarea = document.createElement('div');
+    nuevaTarea.className = 'tarea-item';
+    nuevaTarea.innerHTML = `<textarea name="tarea" rows="2" style="width:90%;display:inline-block;"></textarea> <button type="button" class="btn-eliminar-tarea">🗑️</button>`;
+    tareasSection.insertBefore(nuevaTarea, tareasSection.querySelector('#btn-agregar-tarea'));
+    nuevaTarea.querySelector('.btn-eliminar-tarea').onclick = () => nuevaTarea.remove();
+  };
+  tareasSection.querySelectorAll('.btn-eliminar-tarea').forEach(btn => {
+    btn.onclick = () => btn.parentElement.remove();
+  });
+
+  accionesSection.querySelector('#btn-agregar-accion').onclick = () => {
+    const nuevaAccion = document.createElement('div');
+    nuevaAccion.className = 'accion-item';
+    nuevaAccion.innerHTML = `<textarea name="accion" rows="2" style="width:90%;display:inline-block;"></textarea> <button type="button" class="btn-eliminar-accion">🗑️</button>`;
+    accionesSection.insertBefore(nuevaAccion, accionesSection.querySelector('#btn-agregar-accion'));
+    nuevaAccion.querySelector('.btn-eliminar-accion').onclick = () => nuevaAccion.remove();
+  };
+  accionesSection.querySelectorAll('.btn-eliminar-accion').forEach(btn => {
+    btn.onclick = () => btn.parentElement.remove();
+  });
+
   // Cancelar
   formDiv.querySelector('.btn-cancelar').onclick = () => renderActividades(program);
 
   // Guardar
   formDiv.querySelector('form').onsubmit = e => {
     e.preventDefault();
-    // Obtener el contenido de los campos de texto
-    const accionesArray = formDiv.querySelector('textarea[name="acciones"]').value.split('\n').filter(accion => accion.trim() !== '');
+    // Obtener todas las tareas y acciones
+    const tareasArray = Array.from(formDiv.querySelectorAll('textarea[name="tarea"]')).map(t => t.value).filter(t => t.trim() !== '');
+    const accionesArray = Array.from(formDiv.querySelectorAll('textarea[name="accion"]')).map(a => a.value).filter(a => a.trim() !== '');
     const nuevaActividad = {
       actividad: formDiv.querySelector('input[name="actividad"]').value,
-      tarea: formDiv.querySelector('textarea[name="tarea"]').value,
+      tareas: tareasArray,
       acciones: accionesArray,
       tags: getTagsFromString(formDiv.querySelector('input[name="tags"]').value),
       activo: formDiv.querySelector('input[name="activo"]').checked,
-      tareaActiva: formDiv.querySelector('input[name="tareaActiva"]').checked,
+      tareasActivas: tareasArray.map(() => true),
       accionesActivas: accionesArray.map(() => true),
-      tareaCompletada: false,
+      tareasCompletadas: tareasArray.map(() => false),
       accionesCompletadas: accionesArray.map(() => false),
       fechaCompletado: null
     };
