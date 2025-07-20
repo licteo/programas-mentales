@@ -485,6 +485,9 @@ function showProgramDetail(program) {
   renderActividades(program);
   detailSection.classList.remove('hidden');
   document.querySelector('.programs-grid').style.display = 'none';
+  if (suggestBtn) {
+    suggestBtn.style.display = (program === 'cuerpo') ? 'block' : 'none';
+  }
 }
 
 function renderActividades(program) {
@@ -2374,4 +2377,152 @@ if (testSoundsBtn && testSoundsModal && closeTestSounds) {
       }, 150);
     };
   });
-} 
+}
+
+// Platos sugeridos por color del día (desayuno, almuerzo, cena) para 4 semanas
+const platosPorSemana = [
+  // Semana 1
+  [
+    { dia: 'Domingo', color: 'Rojo', desayuno: 'Fresas con yogur y jugo de tomate', almuerzo: 'Lasaña de carne y ensalada de pimientos rojos', cena: 'Sopa de remolacha y manzana roja al horno' },
+    { dia: 'Lunes', color: 'Naranja', desayuno: 'Jugo de naranja, melón y papaya', almuerzo: 'Arroz con zanahoria y calabaza, pollo al curry', cena: 'Crema de calabaza y batata asada' },
+    { dia: 'Martes', color: 'Amarillo', desayuno: 'Piña, plátano y té de manzanilla', almuerzo: 'Pechuga de pollo con maíz y pimientos amarillos', cena: 'Omelette de queso y maíz, mango' },
+    { dia: 'Miércoles', color: 'Verde', desayuno: 'Batido de espinaca y manzana verde', almuerzo: 'Ensalada de aguacate, brócoli y pepino', cena: 'Crema de calabacín y uvas verdes' },
+    { dia: 'Jueves', color: 'Azul', desayuno: 'Arándanos y yogur natural', almuerzo: 'Pescado al vapor con col morada y cebolla morada', cena: 'Queso azul y batido de moras' },
+    { dia: 'Viernes', color: 'Índigo', desayuno: 'Uvas moradas y ciruelas', almuerzo: 'Ensalada de berenjena y cebolla morada', cena: 'Crema de col lombarda y jugo de uva' },
+    { dia: 'Sábado', color: 'Violeta', desayuno: 'Batido de mora y arándanos', almuerzo: 'Arroz integral con remolacha y col morada', cena: 'Ensalada de repollo morado y uvas negras' }
+  ],
+  // Semana 2
+  [
+    { dia: 'Domingo', color: 'Rojo', desayuno: 'Sandía y jugo de frutos rojos', almuerzo: 'Pasta con salsa de tomate y albóndigas', cena: 'Ensalada de remolacha y huevo' },
+    { dia: 'Lunes', color: 'Naranja', desayuno: 'Papaya y jugo de zanahoria', almuerzo: 'Pollo a la naranja con arroz', cena: 'Sopa de calabaza y zanahoria' },
+    { dia: 'Martes', color: 'Amarillo', desayuno: 'Mango y pan de maíz', almuerzo: 'Tortilla española con pimientos amarillos', cena: 'Puré de papa amarilla y queso' },
+    { dia: 'Miércoles', color: 'Verde', desayuno: 'Kiwis y batido de espinaca', almuerzo: 'Sopa de brócoli y pollo', cena: 'Ensalada de lechuga, pepino y aguacate' },
+    { dia: 'Jueves', color: 'Azul', desayuno: 'Uvas azules y yogur', almuerzo: 'Pasta con salsa de queso azul', cena: 'Ensalada de col morada y nueces' },
+    { dia: 'Viernes', color: 'Índigo', desayuno: 'Ciruelas y jugo de uva', almuerzo: 'Berenjenas rellenas', cena: 'Sopa de lombarda y pan integral' },
+    { dia: 'Sábado', color: 'Violeta', desayuno: 'Uvas negras y batido de mora', almuerzo: 'Ensalada de repollo morado y zanahoria', cena: 'Arroz integral con remolacha' }
+  ],
+  // Semana 3
+  [
+    { dia: 'Domingo', color: 'Rojo', desayuno: 'Jugo de fresa y pan con mermelada roja', almuerzo: 'Pollo al pimentón y arroz rojo', cena: 'Sopa de tomate y pan de ajo' },
+    { dia: 'Lunes', color: 'Naranja', desayuno: 'Melón y jugo de naranja', almuerzo: 'Pasta con salsa de calabaza', cena: 'Tortilla de zanahoria' },
+    { dia: 'Martes', color: 'Amarillo', desayuno: 'Plátano y jugo de piña', almuerzo: 'Pollo con curry y arroz amarillo', cena: 'Ensalada de maíz y huevo' },
+    { dia: 'Miércoles', color: 'Verde', desayuno: 'Manzana verde y batido de pepino', almuerzo: 'Ensalada de espinaca y pollo', cena: 'Sopa de calabacín y guisantes' },
+    { dia: 'Jueves', color: 'Azul', desayuno: 'Arándanos y leche', almuerzo: 'Pescado con salsa azul de queso', cena: 'Ensalada de col morada y manzana' },
+    { dia: 'Viernes', color: 'Índigo', desayuno: 'Jugo de uva y pan de centeno', almuerzo: 'Berenjenas al horno', cena: 'Sopa de lombarda y queso' },
+    { dia: 'Sábado', color: 'Violeta', desayuno: 'Batido de arándanos y uvas negras', almuerzo: 'Arroz integral con col morada', cena: 'Ensalada de repollo morado y zanahoria' }
+  ],
+  // Semana 4
+  [
+    { dia: 'Domingo', color: 'Rojo', desayuno: 'Jugo de sandía y pan de tomate', almuerzo: 'Carne guisada con pimientos rojos', cena: 'Ensalada de remolacha y queso feta' },
+    { dia: 'Lunes', color: 'Naranja', desayuno: 'Papaya y jugo de naranja', almuerzo: 'Pollo con salsa de zanahoria', cena: 'Sopa de calabaza y pan integral' },
+    { dia: 'Martes', color: 'Amarillo', desayuno: 'Mango y pan de maíz', almuerzo: 'Tortilla de patata y pimientos amarillos', cena: 'Ensalada de maíz y huevo' },
+    { dia: 'Miércoles', color: 'Verde', desayuno: 'Kiwis y batido de espinaca', almuerzo: 'Sopa de brócoli y pollo', cena: 'Ensalada de lechuga, pepino y aguacate' },
+    { dia: 'Jueves', color: 'Azul', desayuno: 'Uvas azules y yogur', almuerzo: 'Pasta con salsa de queso azul', cena: 'Ensalada de col morada y nueces' },
+    { dia: 'Viernes', color: 'Índigo', desayuno: 'Ciruelas y jugo de uva', almuerzo: 'Berenjenas rellenas', cena: 'Sopa de lombarda y pan integral' },
+    { dia: 'Sábado', color: 'Violeta', desayuno: 'Uvas negras y batido de mora', almuerzo: 'Ensalada de repollo morado y zanahoria', cena: 'Arroz integral con remolacha' }
+  ]
+];
+
+let semanaActual = 0;
+
+function renderSuggestDishes() {
+  suggestList.innerHTML = '';
+  // Selector de semana
+  const selector = document.createElement('div');
+  selector.style.marginBottom = '1rem';
+  selector.innerHTML = 'Semana: ' + [1,2,3,4].map((n,i) => `<button type="button" class="btn-semana" data-semana="${i}" style="margin-right:0.5rem;${i===semanaActual?'font-weight:bold;background:#e0e7ff;':''}">${n}</button>`).join('');
+  suggestList.appendChild(selector);
+
+  selector.querySelectorAll('.btn-semana').forEach(btn => {
+    btn.onclick = () => {
+      semanaActual = parseInt(btn.dataset.semana);
+      renderSuggestDishes();
+    };
+  });
+
+  platosPorSemana[semanaActual].forEach(({dia, color, desayuno, almuerzo, cena}) => {
+    const section = document.createElement('div');
+    section.style.marginBottom = '1rem';
+    section.innerHTML = `<strong style="color:#333;">${dia} <span style="color:gray;">(${color})</span></strong>`;
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.marginTop = '0.5rem';
+    table.innerHTML = `
+      <tr><th>Desayuno</th><th>Almuerzo</th><th>Cena</th></tr>
+      <tr>
+        <td class="suggest-cell" style="cursor:pointer;">${desayuno}</td>
+        <td class="suggest-cell" style="cursor:pointer;">${almuerzo}</td>
+        <td class="suggest-cell" style="cursor:pointer;">${cena}</td>
+      </tr>
+    `;
+    table.querySelectorAll('.suggest-cell').forEach(cell => {
+      cell.onclick = () => {
+        navigator.clipboard.writeText(cell.textContent);
+        cell.style.background = '#e0e7ff';
+        setTimeout(() => { cell.style.background = ''; }, 700);
+      };
+      cell.title = 'Haz clic para copiar';
+    });
+    section.appendChild(table);
+    suggestList.appendChild(section);
+  });
+}
+
+// Mostrar botón solo en el programa cuerpo
+const suggestBtn = document.getElementById('suggest-dishes-btn');
+const suggestModal = document.getElementById('suggest-dishes-modal');
+const closeSuggest = document.getElementById('close-suggest-dishes');
+const suggestList = document.getElementById('suggest-dishes-list');
+
+function renderSuggestDishes() {
+  suggestList.innerHTML = '';
+  platosPorColor.forEach(({dia, color, desayuno, almuerzo, cena}) => {
+    const section = document.createElement('div');
+    section.style.marginBottom = '1rem';
+    section.innerHTML = `<strong style="color:#333;">${dia} <span style="color:gray;">(${color})</span></strong>`;
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.marginTop = '0.5rem';
+    table.innerHTML = `
+      <tr><th>Desayuno</th><th>Almuerzo</th><th>Cena</th></tr>
+      <tr>
+        <td class="suggest-cell" style="cursor:pointer;">${desayuno}</td>
+        <td class="suggest-cell" style="cursor:pointer;">${almuerzo}</td>
+        <td class="suggest-cell" style="cursor:pointer;">${cena}</td>
+      </tr>
+    `;
+    // Copiar al hacer clic
+    table.querySelectorAll('.suggest-cell').forEach(cell => {
+      cell.onclick = () => {
+        navigator.clipboard.writeText(cell.textContent);
+        cell.style.background = '#e0e7ff';
+        setTimeout(() => { cell.style.background = ''; }, 700);
+      };
+      cell.title = 'Haz clic para copiar';
+    });
+    section.appendChild(table);
+    suggestList.appendChild(section);
+  });
+}
+
+if (suggestBtn && suggestModal && closeSuggest) {
+  suggestBtn.onclick = function() {
+    renderSuggestDishes();
+    suggestModal.style.display = 'flex';
+  };
+  closeSuggest.onclick = function() {
+    suggestModal.style.display = 'none';
+  };
+  window.onclick = function(event) {
+    if (event.target === suggestModal) suggestModal.style.display = 'none';
+  };
+}
+
+// Mostrar u ocultar el botón según el programa
+const oldShowProgramDetail = showProgramDetail;
+showProgramDetail = function(program) {
+  oldShowProgramDetail(program);
+  if (suggestBtn) {
+    suggestBtn.style.display = (program === 'cuerpo') ? 'block' : 'none';
+  }
+};

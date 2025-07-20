@@ -71,6 +71,14 @@
       <h2 id="program-title"></h2>
       <div id="notes-toolbar"></div>
       <textarea id="program-notes" style="height: 180px; width: 100%;"></textarea>
+      <button id="suggest-dishes-btn" style="margin: 1rem 0; display: none;">Sugerir platos por color del día</button>
+      <div id="suggest-dishes-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+          <span class="close" id="close-suggest-dishes">&times;</span>
+          <h2>Platos sugeridos por color del día</h2>
+          <div id="suggest-dishes-list"></div>
+        </div>
+      </div>
       <input id="notes-tags" type="text" placeholder="Etiquetas (separadas por coma)" style="margin-top:0.5rem; width:100%; border-radius:0.4rem; border:1px solid #ccc; padding:0.4rem;" />
       <div id="notes-tags-list" style="margin-bottom:1rem;"></div>
       <button id="notes-history-btn" style="margin-bottom:1rem;">Historial de notas</button>
